@@ -12,7 +12,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
     var presenter: TaskListPresenterInput!
     private var tasks: [Task] = []
     
-    private let titleView: UILabel = {
+    private let titleLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = UIFont(name: "SFProDisplay-Bold", size: 34)
         $0.textColor = .whiteF4
@@ -21,8 +21,13 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         $0.numberOfLines = 1
         return $0
     }(UILabel())
+    
+    private lazy var searchView: SearchView = {
+        $0.delegate = self
+        return $0
+    }(SearchView())
 
-    lazy var tableView: UITableView = {
+    private lazy var tableView: UITableView = {
         let tbView = UITableView(frame: .zero, style: .plain)
         tbView.translatesAutoresizingMaskIntoConstraints = false
         tbView.dataSource = self
@@ -55,20 +60,22 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         
         let leftRightSpace: CGFloat = 20
         
-        [titleView, tableView].forEach { view.addSubview($0) }
+        [titleLabel, searchView, tableView].forEach { view.addSubview($0) }
         
         NSLayoutConstraint.activate([
-            titleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftRightSpace),
-            titleView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
-            titleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -leftRightSpace),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftRightSpace),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -leftRightSpace),
+            
+            searchView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            searchView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            searchView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftRightSpace),
-            tableView.topAnchor.constraint(equalTo: titleView.bottomAnchor, constant: 12),
+            tableView.topAnchor.constraint(equalTo: searchView.bottomAnchor, constant: 12),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -leftRightSpace),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
-        
-        
     }
 }
 
@@ -81,5 +88,15 @@ extension TaskListViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskListTableViewCell.identifier, for: indexPath) as! TaskListTableViewCell
         cell.setupCell(with: tasks[indexPath.row])
         return cell
+    }
+}
+
+extension TaskListViewController: SearchViewDelegate {
+    func didUpdateSearchQuery(_ query: String) {
+        presenter.searchTasks(with: query)
+    }
+    
+    func updateUI() {
+        view.layoutIfNeeded()
     }
 }

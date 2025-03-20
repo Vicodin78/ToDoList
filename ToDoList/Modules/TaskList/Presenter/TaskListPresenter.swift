@@ -9,6 +9,7 @@ import Foundation
 
 protocol TaskListPresenterInput {
     func viewDidLoad()
+    func searchTasks(with query: String)
     func addTask(_ task: Task)
     func deleteTask(taskId: Int)
 }
@@ -23,6 +24,10 @@ final class TaskListPresenter: TaskListPresenterInput {
     weak var view: TaskListPresenterOutput?
     private let interactor: TaskListInteractorInput
     weak var router: TaskListRouterInput?
+    
+    private var allTasks: [Task] = [] // Список всех задач
+    private var filteredTasks: [Task] = [] // Отфильтрованные задачи
+    private var isSearching: Bool = false
 
     init(view: TaskListPresenterOutput, interactor: TaskListInteractorInput) {
         self.view = view
@@ -33,11 +38,17 @@ final class TaskListPresenter: TaskListPresenterInput {
         interactor.fetchTasks { [weak self] result in
             switch result {
             case .success(let tasks):
+                self?.allTasks = tasks
                 self?.view?.displayTasks(tasks)
             case .failure(let error):
                 self?.view?.displayError(error)
             }
         }
+    }
+    
+    func searchTasks(with query: String) {
+        isSearching = !query.isEmpty
+        interactor.filterTasks(with: query)
     }
 
     func addTask(_ task: Task) {
@@ -60,5 +71,17 @@ final class TaskListPresenter: TaskListPresenterInput {
                 self?.view?.displayError(error)
             }
         }
+    }
+}
+
+// MARK: - TaskListInteractorOutput
+extension TaskListPresenter: TaskListInteractorOutput {
+    func didFilterTasks(_ tasks: [Task]) {
+        self.filteredTasks = tasks
+        view?.displayTasks(isSearching ? filteredTasks : allTasks)
+    }
+    
+    func displayError(_ error: any Error) {
+        view?.displayError(error)
     }
 }
