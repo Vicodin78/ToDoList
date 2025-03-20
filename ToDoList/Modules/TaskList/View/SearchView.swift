@@ -129,10 +129,12 @@ class SearchView: UIView {
     }
     
     @objc private func cancelButtonAction() {
-        textField.text = ""
-        changeCancelState()
+        //ERROR
+        stopRecording()
         endEditionTextField()
+        textField.text = ""
         textField.endEditing(true)
+        changeCancelState()
     }
     
     override init(frame: CGRect) {
@@ -236,6 +238,8 @@ extension SearchView {
         recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
             if let result = result {
                 self.textField.text = result.bestTranscription.formattedString
+                self.delegate?.didUpdateSearchQuery(result.bestTranscription.formattedString)
+                self.textField.becomeFirstResponder()
             }
             if error != nil || (result?.isFinal ?? false) {
                 self.stopRecording()
