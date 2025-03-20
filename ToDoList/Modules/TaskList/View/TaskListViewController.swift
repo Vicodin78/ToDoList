@@ -99,4 +99,8 @@ extension TaskListViewController: SearchViewDelegate {
     func updateUI() {
         view.layoutIfNeeded()
     }
+    
+    func showAlert(viewControllerToPresent: UIViewController, animated: Bool) {
+        present(viewControllerToPresent, animated: animated)
+    }
 }

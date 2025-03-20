@@ -6,13 +6,21 @@
 //
 
 import UIKit
+import Speech
+import AVFoundation
 
 protocol SearchViewDelegate: AnyObject {
     func didUpdateSearchQuery(_ query: String)
     func updateUI()
+    func showAlert(viewControllerToPresent: UIViewController, animated: Bool)
 }
 
 class SearchView: UIView {
+    
+    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "ru-RU"))
+    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+    private var recognitionTask: SFSpeechRecognitionTask?
+    private let audioEngine = AVAudioEngine()
     
     weak var delegate: SearchViewDelegate?
     
@@ -32,7 +40,7 @@ class SearchView: UIView {
     
     private let imgSearchView: UIImageView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-
+        
         let font = UIFont(name: "SFProText-Regular", size: 17)
         let config = UIImage.SymbolConfiguration(font: font ?? .systemFont(ofSize: 17))
         let image = UIImage(systemName: "magnifyingglass", withConfiguration: config)
@@ -69,6 +77,7 @@ class SearchView: UIView {
     private lazy var voiceButton: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.setImage(UIImage(systemName: "mic.fill"), for: .normal)
+        $0.addTarget(self, action: #selector(micButtonTapped), for: .touchUpInside)
         $0.tintColor = .whiteF4Alpha05
         return $0
     }(UIButton())
@@ -88,6 +97,21 @@ class SearchView: UIView {
         return $0
     }(UIButton())
     
+    @objc private func micButtonTapped() {
+        if audioEngine.isRunning {
+            stopRecording()
+        } else {
+            requestPermissions { granted in
+                if granted {
+                    print("Доступ к микрофону и распознаванию речи разрешен")
+                    self.startRecording()
+                } else {
+                    print("Доступ отклонен. Показываем пользователю алерт")
+                    self.showSettingsAlert()
+                }
+            }
+        }
+    }
     
     @objc private func endEditionTextField() {
         delegate?.didUpdateSearchQuery(textField.text ?? "")
@@ -110,7 +134,7 @@ class SearchView: UIView {
         endEditionTextField()
         textField.endEditing(true)
     }
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         layout()
@@ -186,6 +210,125 @@ extension SearchView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if isHiddenCancelButton {
             changeCancelState()
+        }
+    }
+}
+
+//MARK: - Голосовой поиск (старт, стоп)
+extension SearchView {
+    
+    private func startRecording() {
+        if recognitionTask != nil {
+            recognitionTask?.cancel()
+            recognitionTask = nil
+        }
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        
+        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        guard let recognitionRequest = recognitionRequest else { return }
+        
+        let inputNode = audioEngine.inputNode
+        recognitionRequest.shouldReportPartialResults = true
+        
+        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
+            if let result = result {
+                self.textField.text = result.bestTranscription.formattedString
+            }
+            if error != nil || (result?.isFinal ?? false) {
+                self.stopRecording()
+            }
+        }
+        
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, _) in
+            recognitionRequest.append(buffer)
+        }
+        
+        audioEngine.prepare()
+        try? audioEngine.start()
+        print("Запись началась...")
+    }
+    
+    private func stopRecording() {
+        audioEngine.stop()
+        audioEngine.inputNode.removeTap(onBus: 0)
+        recognitionRequest?.endAudio()
+        recognitionRequest = nil
+        recognitionTask = nil
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        
+        print("Запись завершена")
+    }
+    
+}
+
+//MARK: - Запросы на разрешение использования микрофона и распознования речи
+extension SearchView {
+    
+    func requestPermissions(completion: @escaping (Bool) -> Void) {
+        var micPermissionGranted = false
+        var speechPermissionGranted = false
+        
+        // Запрос разрешения на микрофон
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestMicrophoneInjectionPermission { permission in
+                micPermissionGranted = (permission != .granted)
+                
+                requestSpeechPermission { speechGranted in
+                    speechPermissionGranted = speechGranted
+                    DispatchQueue.main.async {
+                        completion(micPermissionGranted && speechPermissionGranted)
+                    }
+                }
+            }
+        } else {
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                micPermissionGranted = granted
+                
+                requestSpeechPermission { speechGranted in
+                    speechPermissionGranted = speechGranted
+                    DispatchQueue.main.async {
+                        completion(micPermissionGranted && speechPermissionGranted)
+                    }
+                }
+            }
+        }
+        
+        // Функция запроса разрешения на распознавание речи
+        func requestSpeechPermission(completion: @escaping (Bool) -> Void) {
+            SFSpeechRecognizer.requestAuthorization { status in
+                switch status {
+                case .authorized:
+                    completion(true)
+                case .denied, .restricted, .notDetermined:
+                    completion(false)
+                @unknown default:
+                    completion(false)
+                }
+            }
+        }
+    }
+    
+    func showSettingsAlert() {
+        let alert = UIAlertController(title: "Нет доступа",
+                                      message: "Разрешите доступ к микрофону и распознаванию речи в настройках.",
+                                      preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Настройки", style: .default) { _ in
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsURL)
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        
+        DispatchQueue.main.async {
+            self.delegate?.showAlert(viewControllerToPresent: alert, animated: true)
         }
     }
 }
