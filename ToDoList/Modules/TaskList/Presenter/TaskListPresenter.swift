@@ -10,8 +10,9 @@ import Foundation
 protocol TaskListPresenterInput {
     func viewDidLoad()
     func searchTasks(with query: String)
-    func addTask(_ task: Task)
-    func deleteTask(taskId: Int)
+    func updateTask(_ task: Task)
+    func deleteTask(taskId: Int, completion: @escaping (Bool) -> Void)
+    func didTapAddTaskScreen()
 }
 
 protocol TaskListPresenterOutput: AnyObject {
@@ -23,7 +24,7 @@ final class TaskListPresenter: TaskListPresenterInput {
 
     weak var view: TaskListPresenterOutput?
     private let interactor: TaskListInteractorInput
-    weak var router: TaskListRouterInput?
+    var router: TaskListRouterInput?
     
     private var allTasks: [Task] = [] // Список всех задач
     private var filteredTasks: [Task] = [] // Отфильтрованные задачи
@@ -51,26 +52,33 @@ final class TaskListPresenter: TaskListPresenterInput {
         interactor.filterTasks(with: query)
     }
 
-    func addTask(_ task: Task) {
+    func updateTask(_ task: Task) {
+        print("task с id: \(task.id) прибыл в презентер")
         interactor.saveTask(task: task) { [weak self] result in
             switch result {
             case .success():
                 self?.viewDidLoad()
+                print("interactor вернул данные успешно")
             case .failure(let error):
                 self?.view?.displayError(error)
             }
         }
     }
 
-    func deleteTask(taskId: Int) {
+    func deleteTask(taskId: Int, completion: @escaping (Bool) -> Void) {
         interactor.deleteTask(withId: taskId) { [weak self] result in
             switch result {
             case .success():
+                completion(true)
                 self?.viewDidLoad()
             case .failure(let error):
                 self?.view?.displayError(error)
             }
         }
+    }
+    
+    func didTapAddTaskScreen() {
+        router?.navigateToAddTaskView()
     }
 }
 

@@ -7,7 +7,15 @@
 
 import UIKit
 
+protocol TaskListTableViewCellDelegate: AnyObject {
+    func didTapCompleteMark(for task: Task?)
+}
+
 class TaskListTableViewCell: UITableViewCell {
+    
+    weak var delegate: TaskListTableViewCellDelegate?
+    
+    private var currentTask: Task?
 
     private var isCompleted: Bool = false {
         didSet { updateUI() }
@@ -16,7 +24,6 @@ class TaskListTableViewCell: UITableViewCell {
     private lazy var completeMarkButton: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.contentMode = .center
-        $0.isUserInteractionEnabled = true
         $0.addTarget(self, action: #selector(markButtonTapped), for: .touchUpInside)
         return $0
     }(UIButton())
@@ -40,7 +47,7 @@ class TaskListTableViewCell: UITableViewCell {
     private let taskDateLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = UIFont(name: "SFProText-Regular", size: 12)
-        $0.textColor = .whiteF4.withAlphaComponent(0.5)
+        $0.textColor = .whiteF4Alpha05
         $0.textAlignment = .left
         $0.numberOfLines = 1
         return $0
@@ -63,16 +70,9 @@ class TaskListTableViewCell: UITableViewCell {
     }
     
     private func setColorToTextLables(_ isCompleted: Bool) {
-        let color = isCompleted ? UIColor.whiteF4.withAlphaComponent(0.5) : UIColor.whiteF4
+        let color = isCompleted ? UIColor.whiteF4Alpha05 : UIColor.whiteF4
         taskNameLabel.textColor = color
         taskDescriptionLabel.textColor = color
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yy"
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        return dateFormatter.string(from: date)
     }
     
     private func updateUI() {
@@ -83,16 +83,19 @@ class TaskListTableViewCell: UITableViewCell {
     }
     
     func setupCell(with task: Task) {
+        currentTask = task
         isCompleted = task.isCompleted
         setAttributedTextToNameLable(task.title, task.isCompleted)
         taskDescriptionLabel.text = task.description
-        taskDateLabel.text = formatDate(task.createdAt)
+        taskDateLabel.text = UIView.formatDateToString(task.createdAt)
         updateUI()
         layout()
     }
     
     private func toggleCompletion() {
-        isCompleted.toggle()
+//        isCompleted.toggle()
+        currentTask?.isCompleted.toggle()
+        delegate?.didTapCompleteMark(for: currentTask)
     }
     
     @objc private func markButtonTapped() {
@@ -102,8 +105,7 @@ class TaskListTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super .init(style: style, reuseIdentifier: reuseIdentifier)
-//        selectedBackgroundView = UIView()
-        backgroundColor = .clear
+//        backgroundColor = .clear
     }
     
     required init?(coder: NSCoder) {

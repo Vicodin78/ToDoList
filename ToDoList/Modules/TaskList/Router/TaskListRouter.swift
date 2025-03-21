@@ -9,6 +9,7 @@ import UIKit
 
 protocol TaskListRouterInput: AnyObject {
     func navigateToTaskDetail(task: Task)
+    func navigateToAddTaskView()
 }
 
 final class TaskListRouter: TaskListRouterInput {
@@ -16,8 +17,16 @@ final class TaskListRouter: TaskListRouterInput {
     weak var viewController: UIViewController?
 
     func navigateToTaskDetail(task: Task) {
-        // Пример перехода на экран редактирования задачи
-//        let taskDetailVC = TaskDetailViewController()
-//        viewController?.navigationController?.pushViewController(taskDetailVC, animated: true)
+        
+    }
+    
+    func navigateToAddTaskView() {
+        let transitionDelegate = SlideTransitioningDelegate()
+        
+        let addTaskVC = AddTaskBuilder.build()
+        addTaskVC.transitioningDelegate = transitionDelegate
+        addTaskVC.modalPresentationStyle = .custom
+        
+        viewController?.navigationController?.pushViewController(addTaskVC, animated: true)
     }
 }

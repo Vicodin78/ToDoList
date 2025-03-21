@@ -27,7 +27,8 @@ final class CoreDataService {
     func saveTask(_ task: Task, completion: @escaping (Result<Void, Error>) -> Void) {
         context.perform {
             let fetchRequest: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %d", task.id)
+            fetchRequest.predicate = NSPredicate(format: "id == %@", argumentArray: [Int64(task.id)])
+            
 
             do {
                 let results = try self.context.fetch(fetchRequest)
@@ -67,21 +68,21 @@ final class CoreDataService {
             
             do {
                 let taskEntities = try self.context.fetch(fetchRequest)
-//                let tasks = taskEntities.map { entity in
-//                    Task(
-//                        id: Int(entity.id),
-//                        title: entity.title ?? "",
-//                        description: entity.taskDescription ?? "",
-//                        createdAt: entity.createdAt ?? Date(),
-//                        isCompleted: entity.isCompleted
-//                    )
-//                }
+                let tasks = taskEntities.map { entity in
+                    Task(
+                        id: Int(entity.id),
+                        title: entity.title ?? "",
+                        description: entity.taskDescription ?? "",
+                        createdAt: entity.createdAt ?? Date(),
+                        isCompleted: entity.isCompleted
+                    )
+                }
                 
-                let tasks = [
-                    Task.init(id: 1, title: "Уборка в квартире", description: "Провести генеральную уборку в квартире", createdAt: Date(), isCompleted: false),
-                    Task.init(id: 2, title: "Заняться спортом  ", description: "Сходить в спортзал или сделать тренировку дома. Не забыть про разминку и растяжку!", createdAt: Date(), isCompleted: true),
-                    Task.init(id: 3, title: "Вечерний отдых  ", description: "Найти время для расслабления перед сном: посмотреть фильм или послушать музыку", createdAt: Date(), isCompleted: false)
-                ]
+//                let tasks = [
+//                    Task.init(id: 1, title: "Уборка в квартире", description: "Провести генеральную уборку в квартире", createdAt: Date(), isCompleted: false),
+//                    Task.init(id: 2, title: "Заняться спортом  ", description: "Сходить в спортзал или сделать тренировку дома. Не забыть про разминку и растяжку!", createdAt: Date(), isCompleted: true),
+//                    Task.init(id: 3, title: "Вечерний отдых  ", description: "Найти время для расслабления перед сном: посмотреть фильм или послушать музыку", createdAt: Date(), isCompleted: false)
+//                ]
                 DispatchQueue.main.async {
                     completion(.success(tasks))
                 }
@@ -97,7 +98,7 @@ final class CoreDataService {
     func deleteTask(_ taskID: Int, completion: @escaping (Result<Void, Error>) -> Void) {
         context.perform {
             let fetchRequest: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %d", taskID)
+            fetchRequest.predicate = NSPredicate(format: "id == %@", argumentArray: [Int64(taskID)])
 
             do {
                 if let taskEntity = try self.context.fetch(fetchRequest).first {

@@ -16,7 +16,7 @@ class SlideTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return 0.5
+        return 0.32
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

@@ -11,6 +11,13 @@ extension UIView {
     static var identifier: String {
         return String(describing: self)
     }
+    
+    static func formatDateToString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yy"
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        return dateFormatter.string(from: date)
+    }
 }
 
 extension UIImage {

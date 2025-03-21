@@ -56,7 +56,6 @@ class SearchView: UIView {
         let letterSpacing = -0.43 / placeholderTextSize // Переводим px из макета в pt
         
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.backgroundColor = .clear
         $0.attributedPlaceholder = NSAttributedString(
             string: "Search",
             attributes: [
@@ -131,7 +130,7 @@ class SearchView: UIView {
     @objc private func cancelButtonAction() {
         //ERROR
         stopRecording()
-        endEditionTextField()
+        delegate?.didUpdateSearchQuery("")
         textField.text = ""
         textField.endEditing(true)
         changeCancelState()
@@ -148,7 +147,6 @@ class SearchView: UIView {
     }
     
     private func setupView() {
-        backgroundColor = .clear
         translatesAutoresizingMaskIntoConstraints = false
     }
     
