@@ -1,35 +1,39 @@
 //
-//  AddTaskViewController.swift
+//  TaskViewController.swift
 //  ToDoList
 //
-//  Created by Vicodin on 20.03.2025.
+//  Created by Vicodin on 23.03.2025.
 //
 
 import UIKit
 
-final class AddTaskViewController: UIViewController, AddTaskPresenterOutput {
+class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDelegate {
     
-    var presenter: AddTaskPresenterInput!
+    var presenter: P!
     
     private let conteinerViewSpace: CGFloat = 8
     private let taskBodySpace: CGFloat = 16
     
-    private let taskNameTextField: UITextField = {
-        let placeholderTextSize: CGFloat = 34
-        let letterSpacing = 0.4 / placeholderTextSize // Переводим px из макета в pt
-        
+    private let conteinerView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.attributedPlaceholder = NSAttributedString(
-            string: "Название",
-            attributes: [
-                NSAttributedString.Key.foregroundColor: UIColor.whiteF4Alpha05,
-                NSAttributedString.Key.font: UIFont(name: "SFProDisplay-Bold", size: placeholderTextSize) ?? UIFont.systemFont(ofSize: placeholderTextSize),
-                NSAttributedString.Key.kern: letterSpacing
-            ]
-        )
+        return $0
+    }(UIView())
+    
+    private lazy var taskNameTextField: UITextField = {
+        let font = "SFProDisplay-Bold"
+        let textSize: CGFloat = 34
+    
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.attributedPlaceholder = self.setAttributedText(
+            text: "Название",
+            fontName: font,
+            textSize: textSize,
+            letterSpacing: 0.4,
+            color: .whiteF4Alpha05)
+        
         $0.textAlignment = .left
         $0.tintColor = .appYellow
-        $0.font = UIFont(name: "SFProDisplay-Bold", size: placeholderTextSize)
+        $0.font = UIFont(name: font, size: textSize)
         $0.textColor = .whiteF4
         return $0
     }(UITextField())
@@ -44,25 +48,18 @@ final class AddTaskViewController: UIViewController, AddTaskPresenterOutput {
         return $0
     }(UILabel())
     
-    private let conteinerView: UIView = {
-        $0.translatesAutoresizingMaskIntoConstraints = false
-        return $0
-    }(UIView())
-    
     private let taskBodyTextView: UITextView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.textAlignment = .left
         $0.tintColor = .appYellow
         $0.textColor = .whiteF4
         $0.isScrollEnabled = true
-        $0.scrollIndicatorInsets = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
         return $0
     }(UITextView())
     
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
         layout()
         taskNameTextField.delegate = self
         taskBodyTextView.delegate = self
@@ -76,24 +73,26 @@ final class AddTaskViewController: UIViewController, AddTaskPresenterOutput {
         ).isActive = true
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if self.isMovingFromParent {
-            saveNewTask()
-        }
-    }
+//    override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//        if self.isMovingFromParent {
+//            saveTask()
+//        }
+//    }
+//    
+//    private func saveTask() {
+//        guard let title = taskNameTextField.text,
+//              let description = taskBodyTextView.text,
+//              !title.isEmpty,
+//              !description.isEmpty
+//        else { return }
+//        let task = Task.init(id: 0, title: title, description: description, createdAt: Date(), isCompleted: false)
+////        presenter.addTask(task)
+//    }
     
-    private func saveNewTask() {
-        guard let title = taskNameTextField.text,
-              let description = taskBodyTextView.text
-        else { return }
-        let task = Task.init(id: 0, title: title, description: description, createdAt: Date(), isCompleted: false)
-        presenter.addTask(task)
-    }
-    
-    func displayError(_ error: any Error) {
-        
-    }
+//    func displayError(_ error: any Error) {
+//        
+//    }
     
     private func layout() {
         
@@ -115,38 +114,26 @@ final class AddTaskViewController: UIViewController, AddTaskPresenterOutput {
             conteinerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             taskBodyTextView.leadingAnchor.constraint(equalTo: conteinerView.leadingAnchor),
-//            taskBodyTextView.topAnchor.constraint(equalTo: conteinerView.bottomAnchor, constant: taskBodySpace),
             taskBodyTextView.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor),
             taskBodyTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
-    private func createAttributesForString() -> [NSAttributedString.Key: Any] {
-        let testSize: CGFloat = 16
-        let letterSpacing = -0.43 / testSize // Переводим px из макета в pt
-        
-        return [
-            .font: UIFont(name: "SFProText-Regular", size: testSize) ?? UIFont.systemFont(ofSize: testSize),
-            .foregroundColor: UIColor.whiteF4,
-            .kern: letterSpacing
-        ]
-    }
-}
 
-//MARK: - UITextFieldDelegate
-extension AddTaskViewController: UITextFieldDelegate {
+
+    //MARK: - UITextFieldDelegate
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-
+        if taskBodyTextView.text.isEmpty {
+            taskBodyTextView.becomeFirstResponder()
+        }
         return true
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
 
     }
-}
 
-//MARK: - UITextViewDelegate
-extension AddTaskViewController: UITextViewDelegate {
+
+    //MARK: - UITextViewDelegate
     func textViewDidBeginEditing(_ textView: UITextView) {
 
     }
@@ -160,5 +147,16 @@ extension AddTaskViewController: UITextViewDelegate {
         
         // Восстанавливаем позицию курсора
         textView.selectedRange = selectedRange
+    }
+    
+    private func createAttributesForString() -> [NSAttributedString.Key: Any] {
+        let testSize: CGFloat = 16
+        let letterSpacing = -0.43 / testSize // Переводим px из макета в pt
+        
+        return [
+            .font: UIFont(name: "SFProText-Regular", size: testSize) ?? UIFont.systemFont(ofSize: testSize),
+            .foregroundColor: UIColor.whiteF4,
+            .kern: letterSpacing
+        ]
     }
 }

@@ -17,7 +17,8 @@ final class TaskListRouter: TaskListRouterInput {
     weak var viewController: UIViewController?
 
     func navigateToTaskDetail(task: Task) {
-        
+        let detailVC = TaskDetailBuilder.build(task: task)
+        viewController?.navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func navigateToAddTaskView() {

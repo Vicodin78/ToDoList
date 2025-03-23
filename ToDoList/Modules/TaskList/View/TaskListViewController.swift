@@ -130,8 +130,8 @@ extension TaskListViewController: UITableViewDataSource {
 
 extension TaskListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        presenter.didTadDetailTaskScreen(with: tasks[indexPath.row])
         tableView.deselectRow(at: indexPath, animated: true)
-        
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
