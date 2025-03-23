@@ -53,12 +53,10 @@ final class TaskListPresenter: TaskListPresenterInput {
     }
 
     func updateTask(_ task: Task) {
-        print("task с id: \(task.id) прибыл в презентер")
         interactor.saveTask(task: task) { [weak self] result in
             switch result {
             case .success():
                 self?.viewDidLoad()
-                print("interactor вернул данные успешно")
             case .failure(let error):
                 self?.view?.displayError(error)
             }

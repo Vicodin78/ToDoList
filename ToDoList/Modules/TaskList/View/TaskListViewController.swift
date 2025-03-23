@@ -54,6 +54,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         layout()
         presenter.viewDidLoad()
         
+        navigationController?.navigationBar.tintColor = .appYellow
         navigationController?.delegate = self
     }
     
@@ -61,6 +62,11 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         super.viewWillAppear(animated)
         presenter.viewDidLoad()
         //ERROR
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tableView.reloadData()
     }
 
     func displayTasks(_ tasks: [Task]) {
@@ -174,7 +180,6 @@ extension TaskListViewController: TaskListTableViewCellDelegate {
     func didTapCompleteMark(for task: Task?) {
         guard let task = task else { return }
         presenter?.updateTask(task)
-        print("task с id: \(task.id) передан в презентер")
     }
 }
 

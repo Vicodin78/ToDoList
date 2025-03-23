@@ -17,9 +17,7 @@ class TaskListTableViewCell: UITableViewCell {
     
     private var currentTask: Task?
 
-    private var isCompleted: Bool = false {
-        didSet { updateUI() }
-    }
+    private var isCompleted: Bool = false
     
     private lazy var completeMarkButton: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -93,14 +91,12 @@ class TaskListTableViewCell: UITableViewCell {
     }
     
     private func toggleCompletion() {
-//        isCompleted.toggle()
         currentTask?.isCompleted.toggle()
         delegate?.didTapCompleteMark(for: currentTask)
     }
     
     @objc private func markButtonTapped() {
         toggleCompletion()
-        print("markButtonTapped tapped")
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

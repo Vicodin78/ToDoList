@@ -151,14 +151,14 @@ extension AddTaskViewController: UITextViewDelegate {
 
     }
     
-//    func textViewDidChange(_ textView: UITextView) {
-//        // Сохраняем текущий позицию курсора
-//        let selectedRange = textView.selectedRange
-//        
-//        // Применяем атрибуты ко всему тексту
-//        textView.attributedText = NSMutableAttributedString(string: textView.text, attributes: createAttributesForString())
-//        
-//        // Восстанавливаем позицию курсора
-//        textView.selectedRange = selectedRange
-//    }
+    func textViewDidChange(_ textView: UITextView) {
+        // Сохраняем текущий позицию курсора
+        let selectedRange = textView.selectedRange
+        
+        // Применяем атрибуты ко всему тексту
+        textView.attributedText = NSMutableAttributedString(string: textView.text, attributes: createAttributesForString())
+        
+        // Восстанавливаем позицию курсора
+        textView.selectedRange = selectedRange
+    }
 }
