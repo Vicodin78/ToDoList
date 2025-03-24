@@ -10,14 +10,14 @@ import UIKit
 final class TaskDetailBuilder {
     static func build(task: Task) -> UIViewController {
         let view = TaskDetailViewController()
-        let presenter = TaskDetailPresenter(task: task)
-//            let interactor = TaskDetailInteractor()
+        let interactor = TaskDetailInteractor()
+        let presenter = TaskDetailPresenter(task: task, interactor: interactor)
         let router = TaskDetailRouter()
 
         view.presenter = presenter
         presenter.view = view
-//            presenter.interactor = interactor
         presenter.router = router
+        router.viewController = view
 
         return view
     }

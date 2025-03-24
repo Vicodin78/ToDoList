@@ -42,7 +42,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = UIFont(name: "SFProText-Regular", size: 12)
         $0.textColor = .whiteF4Alpha05
-        $0.text = self.formatDateToString(Date())
+        $0.text = DateFormatter.formatDateToString(Date())
         $0.textAlignment = .left
         $0.numberOfLines = 1
         return $0
@@ -63,6 +63,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         layout()
         taskNameTextField.delegate = self
         taskBodyTextView.delegate = self
+        addCustomBackAction()
     }
     
     override func viewDidLayoutSubviews() {
@@ -73,26 +74,45 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         ).isActive = true
     }
     
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewWillDisappear(animated)
-//        if self.isMovingFromParent {
-//            saveTask()
-//        }
-//    }
-//    
-//    private func saveTask() {
-//        guard let title = taskNameTextField.text,
-//              let description = taskBodyTextView.text,
-//              !title.isEmpty,
-//              !description.isEmpty
-//        else { return }
-//        let task = Task.init(id: 0, title: title, description: description, createdAt: Date(), isCompleted: false)
-////        presenter.addTask(task)
-//    }
+    func displayTask(_ task: Task) {
+        setTextToTaskTitleLabel(task.title)
+        taskDateLabel.text = DateFormatter.formatDateToString(task.createdAt)
+        setTextToTaskDescriptionLabel(task.description)
+    }
     
-//    func displayError(_ error: any Error) {
-//        
-//    }
+    func getDataForTask() -> (title: String?, description: String?) {
+        return (title: taskNameTextField.text, description: taskBodyTextView.text)
+    }
+    
+    private func setTextToTaskTitleLabel(_ text: String) {
+        taskNameTextField.attributedText = setAttributedText(
+            text: text,
+            fontName: "SFProDisplay-Bold",
+            textSize: 34,
+            letterSpacing: 0.4,
+            color: .whiteF4
+        )
+    }
+    
+    private func setTextToTaskDescriptionLabel(_ text: String) {
+        taskBodyTextView.attributedText = setAttributedText(
+            text: text,
+            fontName: "SFProText-Regular",
+            textSize: 16,
+            letterSpacing: -0.43,
+            color: .whiteF4
+        )
+    }
+    
+    func displayError(_ error: any Error, _ popAction: @escaping (() -> Void)) {
+        
+        let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cencel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "OK", style: .destructive, handler: { _ in
+            popAction()
+        }))
+        present(alert, animated: true)
+    }
     
     private func layout() {
         
@@ -117,6 +137,17 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
             taskBodyTextView.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor),
             taskBodyTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    func saveTask() {
+        fatalError("Метод 'saveTask()' в TaskViewController должен быть переопределен в дочернем классе. Это обязательный метод для сохранения задачи, и его нужно реализовать в каждом подклассе.")
+    }
+    
+    //MARK: - CustomBackAction
+    private func addCustomBackAction() {
+        navigationItem.backAction = UIAction { [weak self] _ in
+            self?.saveTask()
+        }
     }
 
 

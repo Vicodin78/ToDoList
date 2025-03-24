@@ -13,12 +13,11 @@ final class AddTaskBuilder {
         let viewController = AddTaskViewController()
         let interactor = AddTaskInteractor()
         let presenter = AddTaskPresenter(view: viewController, interactor: interactor)
-//        let router = AddTaskRouter()
+        let router = AddTaskRouter()
         
-//        presenter.router = router
-//        interactor.presenter = presenter
+        presenter.router = router
         viewController.presenter = presenter
-//        router.viewController = viewController
+        router.viewController = viewController
         
         return viewController
     }

@@ -9,9 +9,6 @@ protocol AddTaskInteractorInput {
     func saveTask(task: Task, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
-final class AddTaskInteractor: AddTaskInteractorInput {
+class AddTaskInteractor: TaskListInteractor, AddTaskInteractorInput {
     
-    func saveTask(task: Task, completion: @escaping (Result<Void, Error>) -> Void) {
-        CoreDataService.shared.saveTask(task, completion: completion)
-    }
 }

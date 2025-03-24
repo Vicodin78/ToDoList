@@ -19,7 +19,7 @@ protocol TaskListInteractorOutput: AnyObject {
     func displayError(_ error: Error)
 }
 
-final class TaskListInteractor: TaskListInteractorInput {
+class TaskListInteractor: TaskListInteractorInput {
     
     weak var presenter: TaskListInteractorOutput?
     
@@ -28,7 +28,7 @@ final class TaskListInteractor: TaskListInteractorInput {
             DispatchQueue.global(qos: .userInitiated).async {
                 switch result {
                 case .success(let tasks):
-                    let filt = tasks.filter { task in
+                    let filtered = tasks.filter { task in
                         let titleMatch = task.title.lowercased().contains(query.lowercased())
                         let descriptionMatch = task.description.lowercased().contains(query.lowercased())
                         let createdAtMatch = DateParser.parseDate(task: task, with: query)
@@ -37,7 +37,7 @@ final class TaskListInteractor: TaskListInteractorInput {
                     }
                     
                     DispatchQueue.main.async {
-                        self.presenter?.didFilterTasks(filt)
+                        self.presenter?.didFilterTasks(filtered)
                     }
                 case .failure(let failure):
                     self.presenter?.displayError(failure)
@@ -47,9 +47,7 @@ final class TaskListInteractor: TaskListInteractorInput {
     }
     
     func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void) {
-        CoreDataService.shared.fetchTasks { result in
-            completion(result)
-        }
+        CoreDataService.shared.fetchTasks { completion($0) }
     }
     
     func saveTask(task: Task, completion: @escaping (Result<Void, Error>) -> Void) {

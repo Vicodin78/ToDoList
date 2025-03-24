@@ -85,7 +85,7 @@ class TaskListTableViewCell: UITableViewCell {
         isCompleted = task.isCompleted
         setAttributedTextToNameLable(task.title, task.isCompleted)
         taskDescriptionLabel.text = task.description
-        taskDateLabel.text = formatDateToString(task.createdAt)
+        taskDateLabel.text = DateFormatter.formatDateToString(task.createdAt)
         updateUI()
         layout()
     }

@@ -22,9 +22,17 @@ extension UIImage {
     }
 }
 
+extension DateFormatter {
+    static func formatDateToString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yy"
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        return dateFormatter.string(from: date)
+    }
+}
+
 protocol TextEditingAssistant {
     func setAttributedText(text: String, fontName: String, textSize: CGFloat, letterSpacing: CGFloat, color: UIColor) -> NSAttributedString
-    func formatDateToString(_ date: Date) -> String
 }
 
 extension TextEditingAssistant {
@@ -37,13 +45,6 @@ extension TextEditingAssistant {
                 NSAttributedString.Key.kern: letterSpacing
             ]
         )
-    }
-    
-    func formatDateToString(_ date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yy"
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        return dateFormatter.string(from: date)
     }
 }
 
