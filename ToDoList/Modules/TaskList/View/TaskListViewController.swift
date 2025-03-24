@@ -51,8 +51,9 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        layout()
         presenter.viewDidLoad()
+        addLongPressGestureRecognizer()
+        layout()
         
         navigationController?.navigationBar.tintColor = .appYellow
         navigationController?.delegate = self
@@ -113,13 +114,31 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
             safeAreaView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+    
+    private func addLongPressGestureRecognizer() {
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        tableView.addGestureRecognizer(longPressGesture)
+    }
+    
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        let location = gestureRecognizer.location(in: tableView)
+        
+        guard let indexPath = tableView.indexPathForRow(at: location) else { return }
+        
+        let cellRect = tableView.rectForRow(at: indexPath)
+        let cellFrameInView = tableView.convert(cellRect, to: view)
+        
+        if gestureRecognizer.state == .began {
+            presenter.didLongTapTask(with: tasks[indexPath.row], at: cellFrameInView.origin)
+        }
+    }
 }
 
 extension TaskListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tasks.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskListTableViewCell.identifier, for: indexPath) as! TaskListTableViewCell
         cell.setupCell(with: tasks[indexPath.row])

@@ -14,6 +14,7 @@ protocol TaskListPresenterInput {
     func deleteTask(taskId: Int, completion: @escaping (Bool) -> Void)
     func didTapAddTaskScreen()
     func didTadDetailTaskScreen(with task: Task)
+    func didLongTapTask(with task: Task, at cellPosition: CGPoint)
 }
 
 protocol TaskListPresenterOutput: AnyObject {
@@ -82,6 +83,10 @@ final class TaskListPresenter: TaskListPresenterInput {
     
     func didTadDetailTaskScreen(with task: Task) {
         router?.navigateToTaskDetail(task: task)
+    }
+    
+    func didLongTapTask(with task: Task, at cellPosition: CGPoint) {
+        router?.navigateToPopOverCell(with: task, at: cellPosition)
     }
 }
 

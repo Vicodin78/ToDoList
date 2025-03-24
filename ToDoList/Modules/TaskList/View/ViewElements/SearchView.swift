@@ -279,7 +279,7 @@ extension SearchView {
         var speechPermissionGranted = false
         
         // Запрос разрешения на микрофон
-        if #available(iOS 17.0, *) {
+        if #available(iOS 18.2, *) {
             AVAudioApplication.requestMicrophoneInjectionPermission { permission in
                 micPermissionGranted = (permission != .granted)
                 

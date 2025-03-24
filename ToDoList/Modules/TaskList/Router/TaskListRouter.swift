@@ -10,6 +10,7 @@ import UIKit
 protocol TaskListRouterInput: AnyObject {
     func navigateToTaskDetail(task: Task)
     func navigateToAddTaskView()
+    func navigateToPopOverCell(with task: Task, at cellPosition: CGPoint)
 }
 
 final class TaskListRouter: TaskListRouterInput {
@@ -29,5 +30,15 @@ final class TaskListRouter: TaskListRouterInput {
         addTaskVC.modalPresentationStyle = .custom
         
         viewController?.navigationController?.pushViewController(addTaskVC, animated: true)
+    }
+    
+    func navigateToPopOverCell(with task: Task, at cellPosition: CGPoint) {
+        let popOverCell = PopOverCellBuilder.build(cellPosition: cellPosition, task: task)
+        
+        let customTransitioningDelegate = CustomTransitioningDelegate()
+        popOverCell.modalPresentationStyle = .custom
+        popOverCell.transitioningDelegate = customTransitioningDelegate
+        
+        viewController?.present(popOverCell, animated: true)
     }
 }
