@@ -77,12 +77,6 @@ final class CoreDataService {
                         isCompleted: entity.isCompleted
                     )
                 }
-                
-//                let tasks = [
-//                    Task.init(id: 1, title: "Уборка в квартире", description: "Провести генеральную уборку в квартире", createdAt: Date(), isCompleted: false),
-//                    Task.init(id: 2, title: "Заняться спортом  ", description: "Сходить в спортзал или сделать тренировку дома. Не забыть про разминку и растяжку!", createdAt: Date(), isCompleted: true),
-//                    Task.init(id: 3, title: "Вечерний отдых  ", description: "Найти время для расслабления перед сном: посмотреть фильм или послушать музыку", createdAt: Date(), isCompleted: false)
-//                ]
                 DispatchQueue.main.async {
                     completion(.success(tasks))
                 }

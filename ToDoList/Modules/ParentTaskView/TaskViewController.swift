@@ -68,6 +68,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         taskNameTextField.delegate = self
         taskBodyTextView.delegate = self
         addCustomBackAction()
+        addDoneAction()
     }
     
     override func viewDidLayoutSubviews() {
@@ -172,6 +173,18 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         }
     }
     
+    //MARK: - CustomDoneAction
+    private func addDoneAction() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(doneButtonAction))
+        navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+    
+    @objc private func doneButtonAction() {
+        taskNameTextField.endEditing(true)
+        taskBodyTextView.endEditing(true)
+        navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+    
     //MARK: - CustomBackAction
     private func addCustomBackAction() {
         navigationItem.backAction = UIAction { [weak self] _ in
@@ -192,13 +205,13 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-
+        navigationItem.rightBarButtonItem?.isEnabled = true
     }
 
 
     //MARK: - UITextViewDelegate
     func textViewDidBeginEditing(_ textView: UITextView) {
-
+        navigationItem.rightBarButtonItem?.isEnabled = true
     }
     
     func textViewDidChange(_ textView: UITextView) {
