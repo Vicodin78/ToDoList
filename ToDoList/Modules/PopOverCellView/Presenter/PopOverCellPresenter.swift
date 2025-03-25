@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol PopOverCellPresenterInput {
+protocol PopOverCellPresenterInput: PopOverMenuDelegate {
     func viewDidLoad()
 }
 
@@ -19,7 +19,7 @@ class PopOverCellPresenter: PopOverCellPresenterInput {
     
     weak var view: PopOverCellPresenterOutput?
 //    private let interactor: PopOverCellInteractorInput
-//    var router: PopOverCellRouterInput?
+    var router: PopOverCellRouterInput?
     
     private let cellPosition: CGPoint
     private let task: Task
@@ -32,5 +32,9 @@ class PopOverCellPresenter: PopOverCellPresenterInput {
     
     func viewDidLoad() {
         view?.displayCell(task: task, cellPosition: cellPosition)
+    }
+    
+    func dismiss() {
+        router?.dismiss()
     }
 }

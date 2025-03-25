@@ -22,6 +22,18 @@ class PopOverMenuTableViewCell: UITableViewCell {
         return $0
     }(UIImageView())
     
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        let customSelectView = UIView()
+        customSelectView.backgroundColor = .backgroundGray.withAlphaComponent(0.35)
+        selectedBackgroundView = customSelectView
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     func setupCell(_ item: MenuItem) {
         self.title.attributedText = setAttributedText(
             text: item.title,

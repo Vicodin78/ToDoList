@@ -100,6 +100,7 @@ class PopOverCellViewController: UIViewController, PopOverCellPresenterOutput {
         let blurEffect = UIBlurEffect(style: .prominent)
         let blurView = UIVisualEffectView(effect: blurEffect)
         blurView.backgroundColor = .appBlack.withAlphaComponent(0.5)
+        blurView.alpha = 0.7
         blurView.frame = view.bounds
         blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(blurView)
@@ -127,7 +128,9 @@ class PopOverCellViewController: UIViewController, PopOverCellPresenterOutput {
     }
     
     private func addPopOver() {
-        let popoverContent = PopOverMenuBuilder.build()
+        guard let task else { return }
+        let popoverContent = PopOverMenuBuilder.build(task)
+        popoverContent.delegate = presenter
         popoverContent.modalPresentationStyle = .popover
 
         if let popoverController = popoverContent.popoverPresentationController {

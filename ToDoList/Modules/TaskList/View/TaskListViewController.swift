@@ -8,10 +8,13 @@
 import UIKit
 
 final class TaskListViewController: UIViewController, TaskListPresenterOutput {
+    
+    private let notifCenter = NotificationCenter.default
 
     var presenter: TaskListPresenterInput!
     private var tasks: [Task] = []
     
+    //MARK: - UI элементы
     private let titleLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = UIFont(name: "SFProDisplay-Bold", size: 34)
@@ -35,6 +38,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         tableView.register(TaskListTableViewCell.self, forCellReuseIdentifier: TaskListTableViewCell.identifier)
         tableView.separatorInset = .zero
         tableView.separatorColor = .tableViewSeparator
+        tableView.showsVerticalScrollIndicator = false
         return tableView
     }()
     
@@ -48,7 +52,8 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         $0.backgroundColor = .backgroundGray
         return $0
     }(UIView())
-
+    
+    //MARK: - Методы жизненного цикла View
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter.viewDidLoad()
@@ -62,18 +67,25 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         presenter.viewDidLoad()
-        //ERROR
+        notifCenter.addObserver(self, selector: #selector(keyboardShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        notifCenter.addObserver(self, selector: #selector(keyboardHide), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         tableView.reloadData()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        notifCenter.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        notifCenter.removeObserver(self, name: UIResponder.keyboardDidHideNotification, object: nil)
+    }
 
-    func displayTasks(_ tasks: [Task]) {
+    //MARK: - Методы TaskListPresenterOutput
+    func displayTasks(_ tasks: [Task], _ notCompletedTasksCount: Int) {
         self.tasks = tasks
         tableView.reloadData()
-        footerView.setTaskCount(tasks.count)
+        footerView.setTaskCount(notCompletedTasksCount)
     }
 
     func displayError(_ error: Error) {
@@ -82,6 +94,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         present(alert, animated: true)
     }
     
+    //MARK: - Layout
     private func layout() {
         
         let leftRightSpace: CGFloat = 20
@@ -100,8 +113,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftRightSpace),
             tableView.topAnchor.constraint(equalTo: searchView.bottomAnchor, constant: 12),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -leftRightSpace),
-//            tableView.bottomAnchor.constraint(equalTo: footerView.topAnchor),
-            
+
             footerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerView.topAnchor.constraint(equalTo: tableView.bottomAnchor),
             footerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -115,6 +127,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         ])
     }
     
+    //MARK: - LongPressGestureRecognizer
     private func addLongPressGestureRecognizer() {
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         tableView.addGestureRecognizer(longPressGesture)
@@ -130,6 +143,19 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         
         if gestureRecognizer.state == .began {
             presenter.didLongTapTask(with: tasks[indexPath.row], at: cellFrameInView.origin)
+        }
+    }
+    
+    //MARK: - KeyboardShowAndHide
+    @objc private func keyboardShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            tableView.contentInset.bottom = keyboardSize.height
+        }
+    }
+    
+    @objc private func keyboardHide(notification: NSNotification) {
+        UIView.animate(withDuration: 0.3) {
+            self.tableView.contentInset.bottom = 0
         }
     }
 }

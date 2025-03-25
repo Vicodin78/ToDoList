@@ -18,7 +18,7 @@ protocol TaskListPresenterInput {
 }
 
 protocol TaskListPresenterOutput: AnyObject {
-    func displayTasks(_ tasks: [Task])
+    func displayTasks(_ tasks: [Task], _ notCompletedTasksCount: Int)
     func displayError(_ error: Error)
 }
 
@@ -36,15 +36,20 @@ final class TaskListPresenter: TaskListPresenterInput {
         self.view = view
         self.interactor = interactor
     }
+    
+    private func checkNotCompletedTasksCount(_ tasks: [Task]) -> Int {
+        tasks.filter {$0.isCompleted == false}.count
+    }
 
     func viewDidLoad() {
         interactor.fetchTasks { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let tasks):
-                self?.allTasks = tasks
-                self?.view?.displayTasks(tasks)
+                self.allTasks = tasks
+                self.view?.displayTasks(tasks, self.checkNotCompletedTasksCount(tasks))
             case .failure(let error):
-                self?.view?.displayError(error)
+                self.view?.displayError(error)
             }
         }
     }
@@ -94,7 +99,11 @@ final class TaskListPresenter: TaskListPresenterInput {
 extension TaskListPresenter: TaskListInteractorOutput {
     func didFilterTasks(_ tasks: [Task]) {
         self.filteredTasks = tasks
-        view?.displayTasks(isSearching ? filteredTasks : allTasks)
+        if isSearching {
+            view?.displayTasks(filteredTasks, checkNotCompletedTasksCount(filteredTasks))
+        } else {
+            view?.displayTasks(allTasks, checkNotCompletedTasksCount(allTasks))
+        }
     }
     
     func displayError(_ error: any Error) {

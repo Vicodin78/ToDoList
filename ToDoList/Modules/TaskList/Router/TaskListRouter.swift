@@ -15,6 +15,8 @@ protocol TaskListRouterInput: AnyObject {
 
 final class TaskListRouter: TaskListRouterInput {
     
+    private let customTransitioningDelegate = CustomTransitioningDelegate()
+    
     weak var viewController: UIViewController?
 
     func navigateToTaskDetail(task: Task) {
@@ -35,7 +37,6 @@ final class TaskListRouter: TaskListRouterInput {
     func navigateToPopOverCell(with task: Task, at cellPosition: CGPoint) {
         let popOverCell = PopOverCellBuilder.build(cellPosition: cellPosition, task: task)
         
-        let customTransitioningDelegate = CustomTransitioningDelegate()
         popOverCell.modalPresentationStyle = .custom
         popOverCell.transitioningDelegate = customTransitioningDelegate
         

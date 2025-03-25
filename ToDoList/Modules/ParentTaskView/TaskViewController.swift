@@ -9,11 +9,14 @@ import UIKit
 
 class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDelegate {
     
+    private let notifCenter = NotificationCenter.default
+    
     var presenter: P!
     
     private let conteinerViewSpace: CGFloat = 8
     private let taskBodySpace: CGFloat = 16
     
+    //MARK: - UI элементы
     private let conteinerView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         return $0
@@ -58,6 +61,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         return $0
     }(UITextView())
     
+    //MARK: - Методы жизненного цикла View
     override func viewDidLoad() {
         super.viewDidLoad()
         layout()
@@ -74,16 +78,18 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         ).isActive = true
     }
     
-    func displayTask(_ task: Task) {
-        setTextToTaskTitleLabel(task.title)
-        taskDateLabel.text = DateFormatter.formatDateToString(task.createdAt)
-        setTextToTaskDescriptionLabel(task.description)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        notifCenter.addObserver(self, selector: #selector(keyboardShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        notifCenter.addObserver(self, selector: #selector(keyboardHide), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
     
-    func getDataForTask() -> (title: String?, description: String?) {
-        return (title: taskNameTextField.text, description: taskBodyTextView.text)
+    override func viewDidDisappear(_ animated: Bool) {
+        notifCenter.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        notifCenter.removeObserver(self, name: UIResponder.keyboardDidHideNotification, object: nil)
     }
     
+    //MARK: - Вспомогательные методы
     private func setTextToTaskTitleLabel(_ text: String) {
         taskNameTextField.attributedText = setAttributedText(
             text: text,
@@ -104,6 +110,17 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         )
     }
     
+    func getDataForTask() -> (title: String?, description: String?) {
+        return (title: taskNameTextField.text, description: taskBodyTextView.text)
+    }
+    
+    //MARK: - Методы PresenterOutput
+    func displayTask(_ task: Task) {
+        setTextToTaskTitleLabel(task.title)
+        taskDateLabel.text = DateFormatter.formatDateToString(task.createdAt)
+        setTextToTaskDescriptionLabel(task.description)
+    }
+    
     func displayError(_ error: any Error, _ popAction: @escaping (() -> Void)) {
         
         let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
@@ -114,6 +131,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         present(alert, animated: true)
     }
     
+    //MARK: - Layout
     private func layout() {
         
         [taskNameTextField, taskDateLabel].forEach { conteinerView.addSubview($0) }
@@ -139,8 +157,19 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         ])
     }
     
-    func saveTask() {
-        fatalError("Метод 'saveTask()' в TaskViewController должен быть переопределен в дочернем классе. Это обязательный метод для сохранения задачи, и его нужно реализовать в каждом подклассе.")
+    //MARK: - KeyboardShowAndHide
+    @objc private func keyboardShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            taskBodyTextView.contentInset.bottom = keyboardSize.height
+            taskBodyTextView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+        }
+    }
+    
+    @objc private func keyboardHide(notification: NSNotification) {
+        UIView.animate(withDuration: 0.3) {
+            self.taskBodyTextView.contentInset.bottom = 0
+            self.taskBodyTextView.verticalScrollIndicatorInsets = .zero
+        }
     }
     
     //MARK: - CustomBackAction
@@ -150,6 +179,9 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         }
     }
 
+    func saveTask() {
+        fatalError("Метод 'saveTask()' в TaskViewController должен быть переопределен в дочернем классе. Это обязательный метод для сохранения задачи, и его нужно реализовать в каждом подклассе.")
+    }
 
     //MARK: - UITextFieldDelegate
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
