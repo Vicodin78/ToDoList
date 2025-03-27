@@ -57,9 +57,20 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         $0.tintColor = .appYellow
         $0.textColor = .whiteF4
         $0.isScrollEnabled = true
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
         return $0
     }(UITextView())
+    
+    //Атрибуты для текста в теле запроса
+    private let taskBodyTextAttribute: [NSAttributedString.Key: Any] = {
+        let testSize: CGFloat = 16
+        let letterSpacing = -0.43 / testSize // Переводим px из макета в pt
+        
+        return [
+            .font: UIFont(name: "SFProText-Regular", size: testSize) ?? UIFont.systemFont(ofSize: testSize),
+            .foregroundColor: UIColor.whiteF4,
+            .kern: letterSpacing
+        ]
+    }()
     
     //MARK: - Методы жизненного цикла View
     override func viewDidLoad() {
@@ -102,13 +113,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
     }
     
     private func setTextToTaskDescriptionLabel(_ text: String) {
-        taskBodyTextView.attributedText = setAttributedText(
-            text: text,
-            fontName: "SFProText-Regular",
-            textSize: 16,
-            letterSpacing: -0.43,
-            color: .whiteF4
-        )
+        taskBodyTextView.attributedText = NSMutableAttributedString(string: text, attributes: taskBodyTextAttribute)
     }
     
     func getDataForTask() -> (title: String?, description: String?) {
@@ -161,8 +166,10 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
     //MARK: - KeyboardShowAndHide
     @objc private func keyboardShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            taskBodyTextView.contentInset.bottom = keyboardSize.height
-            taskBodyTextView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+            UIView.animate(withDuration: 0.3) {
+                self.taskBodyTextView.contentInset.bottom = keyboardSize.height
+                self.taskBodyTextView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+            }
         }
     }
     
@@ -215,24 +222,8 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        // Сохраняем текущий позицию курсора
-        let selectedRange = textView.selectedRange
-        
-        // Применяем атрибуты ко всему тексту
-        textView.attributedText = NSMutableAttributedString(string: textView.text, attributes: createAttributesForString())
-        
-        // Восстанавливаем позицию курсора
-        textView.selectedRange = selectedRange
-    }
-    
-    private func createAttributesForString() -> [NSAttributedString.Key: Any] {
-        let testSize: CGFloat = 16
-        let letterSpacing = -0.43 / testSize // Переводим px из макета в pt
-        
-        return [
-            .font: UIFont(name: "SFProText-Regular", size: testSize) ?? UIFont.systemFont(ofSize: testSize),
-            .foregroundColor: UIColor.whiteF4,
-            .kern: letterSpacing
-        ]
+        let selectedRange = textView.selectedRange // Сохраняем текущую позицию курсора
+        textView.typingAttributes = taskBodyTextAttribute
+        textView.selectedRange = selectedRange // Восстанавливаем позицию курсора
     }
 }
