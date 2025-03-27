@@ -22,6 +22,7 @@ protocol TaskListInteractorOutput: AnyObject {
 class TaskListInteractor: TaskListInteractorInput {
     
     weak var presenter: TaskListInteractorOutput?
+    var networkService: NetworkServiceProtocol?
     
     func filterTasks(with query: String) {
         self.fetchTasks { result in
@@ -40,14 +41,28 @@ class TaskListInteractor: TaskListInteractorInput {
                         self.presenter?.didFilterTasks(filtered)
                     }
                 case .failure(let failure):
-                    self.presenter?.displayError(failure)
+                    DispatchQueue.main.async {
+                        self.presenter?.displayError(failure)
+                    }
+                    
                 }
             }
         }
     }
     
     func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void) {
-        CoreDataService.shared.fetchTasks { completion($0) }
+        if FirstLaunchManager.isFirstLaunch() {
+            networkService?.fetchTasks(completion: { result in
+                switch result {
+                case .success():
+                    CoreDataService.shared.fetchTasks { completion($0) }
+                case .failure(let error):
+                    self.presenter?.displayError(error)
+                }
+            })
+        } else {
+            CoreDataService.shared.fetchTasks { completion($0) }
+        }
     }
     
     func saveTask(task: Task, completion: @escaping (Result<Void, Error>) -> Void) {

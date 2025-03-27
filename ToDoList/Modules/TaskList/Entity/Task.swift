@@ -14,3 +14,17 @@ struct Task {
     var createdAt: Date
     var isCompleted: Bool
 }
+
+struct RemoteTask: Codable {
+    var id: Int?
+    var title: String?
+    var description: String?
+    var createdAt: Date?
+    var isCompleted: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, description, createdAt
+        case title = "todo"
+        case isCompleted = "completed"
+    }
+}
