@@ -14,9 +14,11 @@ final class TaskListBuilder {
         let interactor = TaskListInteractor()
         let presenter = TaskListPresenter(view: viewController, interactor: interactor)
         let router = TaskListRouter()
+        let networkService = NetworkService()
         
         presenter.router = router
         interactor.presenter = presenter
+        interactor.networkService = networkService
         viewController.presenter = presenter
         router.viewController = viewController
         
