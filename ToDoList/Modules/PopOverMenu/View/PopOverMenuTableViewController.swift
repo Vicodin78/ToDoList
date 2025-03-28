@@ -32,7 +32,7 @@ class PopOverMenuTableViewController: UITableViewController, PopOverMenuPresente
     }
     
     override func viewWillLayoutSubviews() {
-        preferredContentSize = CGSize(width: tableView.contentSize.width, height: tableView.contentSize.height)
+        preferredContentSize = CGSize(width: UIScreen.main.bounds.width * 0.7, height: tableView.contentSize.height)
     }
     
     private func setupTableView() {

@@ -35,6 +35,15 @@ final class TaskListPresenter: TaskListPresenterInput {
     init(view: TaskListPresenterOutput, interactor: TaskListInteractorInput) {
         self.view = view
         self.interactor = interactor
+        
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(taskDeleted), name: .taskDeleted, object: nil
+        )
+    }
+    
+    //Обновляем данные таблицы после удаления через popOverMenu
+    @objc private func taskDeleted() {
+        viewDidLoad()
     }
     
     private func checkNotCompletedTasksCount(_ tasks: [Task]) -> Int {
@@ -92,6 +101,10 @@ final class TaskListPresenter: TaskListPresenterInput {
     
     func didLongTapTask(with task: Task, at cellPosition: CGPoint) {
         router?.navigateToPopOverCell(with: task, at: cellPosition)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .taskDeleted, object: nil)
     }
 }
 

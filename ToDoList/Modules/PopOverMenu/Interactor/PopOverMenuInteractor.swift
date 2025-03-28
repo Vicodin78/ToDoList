@@ -36,6 +36,7 @@ class PopOverMenuInteractor: PopOverMenuInteractorInput {
             switch result {
             case .success(_):
                 self.presenter?.dissmissPopOver()
+                NotificationCenter.default.post(name: .taskDeleted, object: nil)
             case .failure(let failure):
                 print(failure)
             }
