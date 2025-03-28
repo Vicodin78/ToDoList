@@ -9,6 +9,8 @@ import UIKit
 
 class PopOverCellViewController: UIViewController, PopOverCellPresenterOutput {
     
+    private let completion: (Task) -> Void
+    
     var presenter: PopOverCellPresenterInput!
     
     private var cellPosition: CGPoint = .zero
@@ -79,6 +81,15 @@ class PopOverCellViewController: UIViewController, PopOverCellPresenterOutput {
         layout()
     }
     
+    init(completion: @escaping (_: Task) -> Void) {
+        self.completion = completion
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter.viewDidLoad()
@@ -129,7 +140,7 @@ class PopOverCellViewController: UIViewController, PopOverCellPresenterOutput {
     
     private func addPopOver() {
         guard let task else { return }
-        let popoverContent = PopOverMenuBuilder.build(task)
+        let popoverContent = PopOverMenuBuilder.build(task, completion: completion)
         popoverContent.delegate = presenter
         popoverContent.modalPresentationStyle = .popover
 

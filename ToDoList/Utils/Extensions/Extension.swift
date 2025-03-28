@@ -50,3 +50,7 @@ extension TextEditingAssistant {
 
 extension UIViewController: TextEditingAssistant {}
 extension UIView: TextEditingAssistant {}
+
+extension Notification.Name {
+    static let taskDeleted = Notification.Name("taskDeleted")
+}

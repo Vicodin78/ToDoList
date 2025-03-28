@@ -28,8 +28,9 @@ class PopOverMenuRouterTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        let completion: (Task) -> Void = { _ in }
         viewControllerMock = ViewControllerMock()
-        router = PopOverMenuRouter()
+        router = PopOverMenuRouter(completion: completion)
         router.viewController = viewControllerMock
     }
     
@@ -44,7 +45,7 @@ class PopOverMenuRouterTests: XCTestCase {
         
         router.routeToDelailView(with: task)
         
-        XCTAssertTrue(viewControllerMock.presentCalled, "Должен быть вызван метод present у viewController и передан в него DelailViewController")
+        XCTAssertTrue(viewControllerMock.dismissCalled, "Должен быть вызван метод dismiss у viewController и вызван completion handler для передачи текущей задачи вниз по иерархии viewControllers")
     }
     
     func testRouteToShareView_presentsActivityViewController() {
