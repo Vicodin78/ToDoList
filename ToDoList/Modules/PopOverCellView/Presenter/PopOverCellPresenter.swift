@@ -18,7 +18,6 @@ protocol PopOverCellPresenterOutput: AnyObject {
 class PopOverCellPresenter: PopOverCellPresenterInput {
     
     weak var view: PopOverCellPresenterOutput?
-//    private let interactor: PopOverCellInteractorInput
     var router: PopOverCellRouterInput?
     
     private let cellPosition: CGPoint

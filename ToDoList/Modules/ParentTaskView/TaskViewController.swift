@@ -22,7 +22,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         return $0
     }(UIView())
     
-    private lazy var taskNameTextField: UITextField = {
+    private(set) lazy var taskNameTextField: UITextField = {
         let font = "SFProDisplay-Bold"
         let textSize: CGFloat = 34
     
@@ -51,7 +51,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         return $0
     }(UILabel())
     
-    private let taskBodyTextView: UITextView = {
+    private(set) var taskBodyTextView: UITextView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.textAlignment = .left
         $0.tintColor = .appYellow

@@ -15,7 +15,7 @@ protocol TaskListRouterInput: AnyObject {
 
 final class TaskListRouter: TaskListRouterInput {
     
-    private let customTransitioningDelegate = CustomTransitioningDelegate()
+    let customTransitioningDelegate = CustomTransitioningDelegate()
     
     weak var viewController: UIViewController?
 

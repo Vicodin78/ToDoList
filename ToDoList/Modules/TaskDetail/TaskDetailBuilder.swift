@@ -13,8 +13,10 @@ final class TaskDetailBuilder {
         let interactor = TaskDetailInteractor()
         let presenter = TaskDetailPresenter(task: task, interactor: interactor)
         let router = TaskDetailRouter()
-
+        let coreDataService = CoreDataService.shared
+        
         view.presenter = presenter
+        interactor.coreDataService = coreDataService
         presenter.view = view
         presenter.router = router
         router.viewController = view

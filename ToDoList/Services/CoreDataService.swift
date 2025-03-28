@@ -8,7 +8,14 @@
 import CoreData
 import UIKit
 
-final class CoreDataService {
+protocol CoreDataServiceProtocol {
+    func saveTask(_ task: Task, completion: @escaping (Result<Void, Error>) -> Void)
+    func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void)
+    func deleteTask(_ taskID: Int, completion: @escaping (Result<Void, Error>) -> Void)
+    func saveTasks(_ tasks: [RemoteTask], completion: @escaping (Result<Void, Error>) -> Void)
+}
+
+class CoreDataService: CoreDataServiceProtocol {
     static let shared = CoreDataService()
     private let persistentContainer: NSPersistentContainer
 
