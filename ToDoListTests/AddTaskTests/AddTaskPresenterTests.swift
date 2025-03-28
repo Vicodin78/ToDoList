@@ -52,6 +52,12 @@ final class AddTaskPresenterTests: XCTestCase {
 
         XCTAssertNotNil(mockView.displayedError, "Должен показывать ошибку при пустых данных")
     }
+    
+    func testAddTask_WithEmptyData_ShouldDissmissView() {
+        presenter.addTask(data: (title: nil, description: nil))
+
+        XCTAssertTrue(mockRouter.didDismiss, "Должен закрыть экран при пустых данных и согласии пользователя")
+    }
 
     func testAddTask_OnFailure_ShouldShowError() {
         let error = NSError(domain: "TestError", code: 500, userInfo: nil)
@@ -60,6 +66,15 @@ final class AddTaskPresenterTests: XCTestCase {
         presenter.addTask(data: (title: "Fail Task", description: "Will fail"))
 
         XCTAssertEqual(mockView.displayedError?.0.localizedDescription, error.localizedDescription, "Должен показывать ошибку сохранения")
+    }
+    
+    func testAddTask_OnFailure_ShouldDissmissView() {
+        let error = NSError(domain: "TestError", code: 500, userInfo: nil)
+        mockInteractor.saveResult = .failure(error)
+
+        presenter.addTask(data: (title: "Fail Task", description: "Will fail"))
+
+        XCTAssertTrue(mockRouter.didDismiss, "Должен закрыть экран при ошибке сохранения данных и согласии пользователя")
     }
     
     func testDismissAddTaskView_ShouldCallRouterDismiss() {

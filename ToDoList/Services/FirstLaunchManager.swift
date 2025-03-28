@@ -9,7 +9,6 @@ import Foundation
 
 protocol FirstLaunchManagerProtocol {
     func isFirstLaunch() -> Bool
-    func firstLaunchCompleted()
 }
 
 final class FirstLaunchManager: FirstLaunchManagerProtocol {

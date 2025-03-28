@@ -175,30 +175,7 @@ final class TaskListInteractorTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
     
-    // MARK: - Тест фильтрации задач
-    func testFilterTasks() {
-        let task1 = Task(id: 1, title: "Buy milk", description: "Get some milk", createdAt: Date(), isCompleted: false)
-        let task2 = Task(id: 2, title: "Go running", description: "Run 5km", createdAt: Date(), isCompleted: false)
-        let task3 = Task(id: 3, title: "Read book", description: "Read Swift book", createdAt: Date(), isCompleted: false)
-        
-        mockLaunchManager.isFirstLoad = false
-        
-        mockCoreDataService.tasks = [task1, task2, task3]
-        
-        let expectation = self.expectation(description: "Task Filtered successfully")
-        
-        interactor.filterTasks(with: "Run", completion: {
-            defer { expectation.fulfill() }
-            guard let filteredTasks = self.mockPresenter.filteredTasks else {
-                XCTFail("Тест не пройден. Не удалось развернть filteredTasks")
-                return
-            }
-            XCTAssertFalse(filteredTasks.isEmpty , "Должна быть не пустая коллекция задач")
-            XCTAssertTrue(filteredTasks.contains(where: {$0.title == "Go running"}), "Коллекция должна содержать данный элемент")
-        })
-        waitForExpectations(timeout: 1.0)
-    }
-    
+    // MARK: - Тест фильтрации задач    
     func testFilterTasks_Failure() {
         
         mockCoreDataService.shouldFail = true

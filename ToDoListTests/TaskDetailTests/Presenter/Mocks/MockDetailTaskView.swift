@@ -9,8 +9,10 @@ import XCTest
 @testable import ToDoList
 
 final class MockDetailTaskView: DetailTaskPresenterOutput {
+    
     private(set) var displayedTask: Task?
     private(set) var displayedError: (Error, (() -> Void)?)?
+    private(set) var popActionCalled: Bool = false
 
     func displayTask(_ task: Task) {
         displayedTask = task
@@ -18,5 +20,7 @@ final class MockDetailTaskView: DetailTaskPresenterOutput {
 
     func displayError(_ error: any Error, _ popAction: @escaping (() -> Void)) {
         displayedError = (error, popAction)
+        popAction()
+        popActionCalled = true
     }
 }

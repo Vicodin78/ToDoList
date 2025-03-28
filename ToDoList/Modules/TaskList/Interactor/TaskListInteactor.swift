@@ -27,8 +27,8 @@ class TaskListInteractor: TaskListInteractorInput {
     var firstLaunchManager: FirstLaunchManagerProtocol = FirstLaunchManager()
     
     func filterTasks(with query: String, completion: (() -> Void)? = nil) {
-        self.fetchTasks { result in
-            DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.fetchTasks { result in
                 switch result {
                 case .success(let tasks):
                     let filtered = tasks.filter { task in
@@ -46,7 +46,6 @@ class TaskListInteractor: TaskListInteractorInput {
                     DispatchQueue.main.async {
                         self.presenter?.displayError(failure)
                     }
-                    
                 }
             }
         }

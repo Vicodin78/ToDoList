@@ -14,7 +14,6 @@ class MockTaskListView: TaskListPresenterOutput {
     var displayedError: Error?
     
     func displayTasks(_ tasks: [Task], _ notCompletedTasksCount: Int) {
-        print("displayTasks вызван")
         self.displayedTasks = tasks
         self.displayedNotCompletedTasksCount = notCompletedTasksCount
     }

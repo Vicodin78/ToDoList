@@ -13,6 +13,7 @@ final class MockAddTaskView: AddTaskPresenterOutput {
 
     func displayError(_ error: any Error, _ popAction: @escaping (() -> Void)) {
         displayedError = (error, popAction)
+        popAction()
     }
 }
 

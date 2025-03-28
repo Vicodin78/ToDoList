@@ -66,10 +66,31 @@ final class TaskDetailPresenterTests: XCTestCase {
         XCTAssertEqual(mockView.displayedError?.0.localizedDescription, error.localizedDescription, "Должен показывать ошибку")
     }
     
-    func testSaveEmptyTask_ShouldShowError() {
+    func testSaveTask_OnFailure_ShouldDismissView() {
+        let error = NSError(domain: "TestError", code: 500, userInfo: nil)
+        mockInteractor.saveResult = .failure(error)
+        
+        presenter.saveTask((title: "Fail Task", description: "This will fail"))
+        
+        XCTAssertTrue(mockView.popActionCalled, "Метод закрытия экркна должен быть вызван")
+        XCTAssertTrue(mockRouter.didDismiss, "После ошибки сохранения и согласия пользователя должен закрыть экран")
+    }
+    
+    func testSaveEmptyTask_ShouldShowEmptyError() {
         presenter.saveTask((title: nil, description: nil))
 
-        XCTAssertNotNil(mockView.displayedError, "Должен отобразить ошибку")
+        XCTAssertNotNil(mockView.displayedError, "Должен отобразить ошибку что задача пуста")
+    }
+    
+    func testSaveEmptyTask_ShouldShowDeleteError_AndDismiss() {
+        let error = NSError(domain: "TestError", code: 500, userInfo: nil)
+        mockInteractor.deleteResult = .failure(error)
+        
+        presenter.saveTask((title: nil, description: nil))
+
+        XCTAssertNotNil(mockView.displayedError, "Должен отобразить ошибку удаления задачи из хранилища")
+        XCTAssertTrue(mockView.popActionCalled, "Метод закрытия экркна должен быть вызван")
+        XCTAssertTrue(mockRouter.didDismiss, "После ошибки удаления должен закрыть экран")
     }
 
     func testDismissDetailTaskView_ShouldCallRouterDismiss() {
