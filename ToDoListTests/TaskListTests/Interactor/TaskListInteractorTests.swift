@@ -51,11 +51,11 @@ final class TaskListInteractorTests: XCTestCase {
         
         interactor.fetchTasks { result in
             switch result {
-            case .success(let success):
-                XCTAssertFalse(self.mockCoreDataService.tasks.isEmpty, "Хранилище должно содержать переданный элемент")
-                XCTAssertEqual(self.mockCoreDataService.tasks.first?.description, mockTask.description, "Метод должен вернуть, а хранилище содержать такой объект")
+            case .success(let tasks):
+                XCTAssertFalse(tasks.isEmpty, "Хранилище должно содержать переданный элемент")
+                XCTAssertEqual(tasks.first?.description, mockTask.description, "Метод должен вернуть, а хранилище содержать объект mockTask")
                 expectation.fulfill()
-            case .failure(let failure):
+            case .failure( _):
                 XCTFail("Expected success but got failure")
             }
         }
@@ -86,8 +86,8 @@ final class TaskListInteractorTests: XCTestCase {
         interactor.fetchTasks { result in
             switch result {
             case .success(let tasks):
-                XCTAssertEqual(tasks.count, 1)
-                XCTAssertEqual(tasks.first?.title, "Test")
+                XCTAssertEqual(tasks.count, 1, "Хранилище должно содержать переданный элемент")
+                XCTAssertEqual(tasks.first?.title, "Test", "Метод должен вернуть, а хранилище содержать объект mockTask")
                 expectation.fulfill()
             case .failure:
                 XCTFail("Expected success but got failure")
@@ -107,7 +107,7 @@ final class TaskListInteractorTests: XCTestCase {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertNotNil(error, "Метод должен вернуть ошибку получения данных")
                 expectation.fulfill()
             }
         }
@@ -124,7 +124,7 @@ final class TaskListInteractorTests: XCTestCase {
         interactor.saveTask(task: mockTask) { result in
             switch result {
             case .success:
-                XCTAssertTrue(self.mockCoreDataService.tasks.contains { $0.id == mockTask.id })
+                XCTAssertTrue(self.mockCoreDataService.tasks.contains { $0.id == mockTask.id }, "Метод должен сохранить задачу в CoreData")
                 expectation.fulfill()
             case .failure:
                 XCTFail("Expected success but got failure")
@@ -144,7 +144,7 @@ final class TaskListInteractorTests: XCTestCase {
         interactor.deleteTask(withId: mockTask.id) { result in
             switch result {
             case .success:
-                XCTAssertFalse(self.mockCoreDataService.tasks.contains { $0.id == mockTask.id })
+                XCTAssertFalse(self.mockCoreDataService.tasks.contains { $0.id == mockTask.id }, "Метод должен удалить из хранилища задачу")
                 expectation.fulfill()
             case .failure:
                 XCTFail("Expected success but got failure")
@@ -167,7 +167,7 @@ final class TaskListInteractorTests: XCTestCase {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertNotNil(error, "Должна вернуться ошибка удаления")
                 expectation.fulfill()
             }
         }
@@ -175,7 +175,25 @@ final class TaskListInteractorTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
     
-    // MARK: - Тест фильтрации задач    
+    // MARK: - Тест фильтрации задач
+    func testFilterTasks() {
+        let task1 = Task(id: 1, title: "Buy milk", description: "Get some milk", createdAt: Date(), isCompleted: false)
+        let task2 = Task(id: 2, title: "Go running", description: "Run 5km", createdAt: Date(), isCompleted: false)
+        let task3 = Task(id: 3, title: "Read book", description: "Read Swift book", createdAt: Date(), isCompleted: false)
+        
+        mockCoreDataService.tasks = [task1, task2, task3]
+        
+        let expectation = self.expectation(description: "Task Filtered successfully")
+        
+        interactor.filterTasks(with: "Run", completion: {
+            XCTAssertEqual(self.mockPresenter.filteredTasks?.count, 1, "Должна была быть отфильтрована только одна задача")
+            XCTAssertEqual(self.mockPresenter.filteredTasks?.first?.title, "Go running", "Отфильтрованная задача должна содерать указанные символы в заголовке")
+            expectation.fulfill()
+        })
+        
+        waitForExpectations(timeout: 5.0)
+    }
+    
     func testFilterTasks_Failure() {
         
         mockCoreDataService.shouldFail = true
@@ -191,13 +209,13 @@ final class TaskListInteractorTests: XCTestCase {
         
         mockCoreDataService.tasks = [task1, task2]
         
-        let expectation = self.expectation(description: "Task Filtered successfully")
+        let expectation = self.expectation(description: "Task Filtered No Results")
         
         interactor.filterTasks(with: "xyz") {
-            XCTAssertEqual(self.mockPresenter.filteredTasks?.count, 0)
+            XCTAssertEqual(self.mockPresenter.filteredTasks?.count, 0, "Результат фильтрации должен быть пустым")
             expectation.fulfill()
         }
         
-        waitForExpectations(timeout: 1.0)
+        waitForExpectations(timeout: 5.0)
     }
 }

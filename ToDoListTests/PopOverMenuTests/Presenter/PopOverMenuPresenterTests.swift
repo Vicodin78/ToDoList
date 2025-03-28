@@ -78,6 +78,4 @@ final class PopOverMenuPresenterTests: XCTestCase {
         XCTAssertEqual(mockView.displayedMenuItems.count, 3, "Должно быть передано три элемента в меню")
         XCTAssertEqual(mockView.displayedMenuItems[2].title, "Удалить", "Последним в списке должен юыть пункт Удалить")
     }
-    
-    
 }

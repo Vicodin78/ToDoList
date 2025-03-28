@@ -44,7 +44,7 @@ final class PopOverCellPresenterTests: XCTestCase {
         XCTAssertNotNil(mockView.displayedTask, "Должен передать задачу")
         XCTAssertNotNil(mockView.displayedCellPosition, "Должен передать позицию ячейки")
         
-        XCTAssertEqual(mockView.displayedCellPosition, cellPosition, "Должен передать правильный позицию ячейки")
+        XCTAssertEqual(mockView.displayedCellPosition, cellPosition, "Должен передать правильную позицию ячейки")
         XCTAssertEqual(mockView.displayedTask?.title, task.title, "Должен передать правильный заголовок")
     }
   

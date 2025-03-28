@@ -10,15 +10,18 @@ import XCTest
 
 final class DateParserTests: XCTestCase {
     
-    func testParseDate_with_FullDate() {
-        
+    private func createDate() -> Date? {
         let calendar = Calendar.current
         var dateComponents = DateComponents()
         dateComponents.day = 7
         dateComponents.month = 8
         dateComponents.year = 2000
+        return calendar.date(from: dateComponents)
+    }
+    
+    func testParseDate_with_FullDate() {
         
-        guard let date = calendar.date(from: dateComponents) else {
+        guard let date = createDate() else {
             XCTFail("Ошибка подготовки даты для теста")
             return
         }
@@ -31,13 +34,7 @@ final class DateParserTests: XCTestCase {
     
     func testParseDate_with_DayAndMonth() {
         
-        let calendar = Calendar.current
-        var dateComponents = DateComponents()
-        dateComponents.day = 7
-        dateComponents.month = 8
-        dateComponents.year = 2000
-        
-        guard let date = calendar.date(from: dateComponents) else {
+        guard let date = createDate() else {
             XCTFail("Ошибка подготовки даты для теста")
             return
         }
@@ -50,13 +47,7 @@ final class DateParserTests: XCTestCase {
     
     func testParseDate_with_DayOnly() {
         
-        let calendar = Calendar.current
-        var dateComponents = DateComponents()
-        dateComponents.day = 7
-        dateComponents.month = 8
-        dateComponents.year = 2000
-        
-        guard let date = calendar.date(from: dateComponents) else {
+        guard let date = createDate() else {
             XCTFail("Ошибка подготовки даты для теста")
             return
         }
@@ -69,13 +60,7 @@ final class DateParserTests: XCTestCase {
     
     func testParseDate_with_YearOnly() {
         
-        let calendar = Calendar.current
-        var dateComponents = DateComponents()
-        dateComponents.day = 7
-        dateComponents.month = 8
-        dateComponents.year = 2000
-        
-        guard let date = calendar.date(from: dateComponents) else {
+        guard let date = createDate() else {
             XCTFail("Ошибка подготовки даты для теста")
             return
         }

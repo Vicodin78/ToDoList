@@ -31,13 +31,13 @@ class TaskListRouterTests: XCTestCase {
         
         router.navigateToTaskDetail(task: task)
         
-        XCTAssertTrue(viewControllerMock.didPushViewController)
+        XCTAssertTrue(viewControllerMock.didPushViewController, "Должен был вызвать pushViewController")
     }
     
     func test_navigateToAddTaskView_pushesViewController() {
         router.navigateToAddTaskView()
         
-        XCTAssertTrue(viewControllerMock.didPushViewController)
+        XCTAssertTrue(viewControllerMock.didPushViewController, "Должен был вызвать pushViewController")
     }
     
     func test_navigateToPopOverCell_presentsViewController() {
@@ -46,6 +46,6 @@ class TaskListRouterTests: XCTestCase {
         
         router.navigateToPopOverCell(with: task, at: position)
         
-        XCTAssertTrue(viewControllerMock.didPresentViewController)
+        XCTAssertTrue(viewControllerMock.didPresentViewController, "Должен был вызвать presentViewController")
     }
 }

@@ -39,15 +39,15 @@ final class TaskViewControllerTests: XCTestCase {
         
         sut.displayTask(task)
         
-        XCTAssertEqual(sut.taskNameTextField.text, task.title)
-        XCTAssertEqual(sut.taskBodyTextView.text, task.description)
+        XCTAssertEqual(sut.taskNameTextField.text, task.title, "Метод должен был отобразить название задачи")
+        XCTAssertEqual(sut.taskBodyTextView.text, task.description, "Метод должен был отобразить описание задачи")
     }
 
     func test_editingEnablesDoneButton() {
         sut.textFieldDidBeginEditing(sut.taskNameTextField)
-        XCTAssertTrue(sut.navigationItem.rightBarButtonItem?.isEnabled ?? false)
+        XCTAssertTrue(sut.navigationItem.rightBarButtonItem?.isEnabled ?? false, "Кнопка rightBarButtonItem должна быть доступна")
         
         sut.textViewDidBeginEditing(sut.taskBodyTextView)
-        XCTAssertTrue(sut.navigationItem.rightBarButtonItem?.isEnabled ?? false)
+        XCTAssertTrue(sut.navigationItem.rightBarButtonItem?.isEnabled ?? false, "Кнопка rightBarButtonItem должна быть доступна")
     }
 }

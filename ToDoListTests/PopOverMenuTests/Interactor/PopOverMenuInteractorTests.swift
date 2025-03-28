@@ -46,7 +46,7 @@ final class PopOverMenuInteractorTests: XCTestCase {
         
         sut.deleteTask(withId: taskToDelete.id)
         
-        XCTAssertFalse(self.mockCoreDataService.tasks.contains { $0.id == taskToDelete.id })
+        XCTAssertFalse(self.mockCoreDataService.tasks.contains { $0.id == taskToDelete.id }, "Должно быть вызвано удаление задачи из CoreData")
     }
     
     func test_deleteTask_success_callsDismissPopOver() {
@@ -54,7 +54,7 @@ final class PopOverMenuInteractorTests: XCTestCase {
         
         sut.deleteTask(withId: 1)
         
-        XCTAssertTrue(mockPresenter.dismissPopOverCalled)
+        XCTAssertTrue(mockPresenter.dismissPopOverCalled, "Не вызван метод dismissPopOver у презентера")
     }
     
     func test_deleteTask_failure_doesNotCallDismissPopOver() {
@@ -62,6 +62,6 @@ final class PopOverMenuInteractorTests: XCTestCase {
         
         sut.deleteTask(withId: 1)
         
-        XCTAssertFalse(mockPresenter.dismissPopOverCalled)
+        XCTAssertFalse(mockPresenter.dismissPopOverCalled, "Не вызван метод dismissPopOver у презентера")
     }
 }

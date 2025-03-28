@@ -51,7 +51,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .success:
-                XCTAssertTrue(true)
+                XCTAssertTrue(true, "Получение данных должно завершиться успешно")
             case .failure(let error):
                 XCTFail("Expected success but got error: \(error)")
             }
@@ -83,7 +83,7 @@ final class NetworkServiceTests: XCTestCase {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertFalse(error.localizedDescription.isEmpty)
+                XCTAssertFalse(error.localizedDescription.isEmpty, "Должна содержаться ошибка получения данных")
             }
             expectation.fulfill()
         }
@@ -99,7 +99,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertEqual(error.localizedDescription, NetworkError.noInternetConnection.localizedDescription)
+                XCTAssertEqual(error.localizedDescription, NetworkError.noInternetConnection.localizedDescription, "Должна быть ошибка 'отсутствует интернет'")
             default:
                 XCTFail("Expected noInternetConnection error but got success")
             }
@@ -116,7 +116,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertEqual(error.localizedDescription, NetworkError.timeout.localizedDescription)
+                XCTAssertEqual(error.localizedDescription, NetworkError.timeout.localizedDescription, "Должна быть ошибка 'таймаут")
             default:
                 XCTFail("Expected timeout error but got success")
             }
@@ -133,7 +133,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertEqual(error.localizedDescription, NetworkError.serverUnavailable.localizedDescription)
+                XCTAssertEqual(error.localizedDescription, NetworkError.serverUnavailable.localizedDescription, "Должна быть ошибка 'сервер недоступен")
             default:
                 XCTFail("Expected serverUnavailable error but got success")
             }
@@ -150,7 +150,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertEqual(error.localizedDescription, NetworkError.serverUnavailable.localizedDescription)
+                XCTAssertEqual(error.localizedDescription, NetworkError.serverUnavailable.localizedDescription, "Должна быть ошибка 'Сервер недоступен'")
             default:
                 XCTFail("Expected serverUnavailable error but got success")
             }
@@ -170,7 +170,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertEqual(error.localizedDescription, NetworkError.invalidResponse.localizedDescription)
+                XCTAssertEqual(error.localizedDescription, NetworkError.invalidResponse.localizedDescription, "Должна быть ошибка invalidResponse")
             default:
                 XCTFail("Expected invalidResponse error but got success")
             }
@@ -190,7 +190,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertEqual(error.localizedDescription, NetworkError.decodingFailed.localizedDescription)
+                XCTAssertEqual(error.localizedDescription, NetworkError.decodingFailed.localizedDescription, "Должна быть ошибка декодинга")
             default:
                 XCTFail("Expected decodingFailed error but got success")
             }
@@ -207,7 +207,7 @@ final class NetworkServiceTests: XCTestCase {
         networkService.fetchTasks { result in
             switch result {
             case .failure(let error as NetworkError):
-                XCTAssertFalse(error.localizedDescription.isEmpty)
+                XCTAssertFalse(error.localizedDescription.isEmpty, "Должна быть любая ошибка")
             default:
                 XCTFail("Expected unknownError error but got success")
             }

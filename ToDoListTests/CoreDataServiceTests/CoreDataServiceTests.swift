@@ -34,8 +34,8 @@ class CoreDataServiceTests: XCTestCase {
                 self.coreDataService.fetchTasks { result in
                     switch result {
                     case .success(let tasks):
-                        XCTAssertEqual(tasks.count, 1)
-                        XCTAssertEqual(tasks.first?.title, "Test Task")
+                        XCTAssertEqual(tasks.count, 1, "Задача должна быть сохранена в количестве 1 штуки")
+                        XCTAssertEqual(tasks.first?.title, "Test Task", "Заголовок задачи должен соответсвовать 'Test Task")
                         expectation.fulfill()
                     case .failure(let error):
                         XCTFail("Failed to fetch tasks: \(error)")

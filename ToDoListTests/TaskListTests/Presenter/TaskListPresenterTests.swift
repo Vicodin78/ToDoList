@@ -39,8 +39,8 @@ class TaskListPresenterTests: XCTestCase {
         
         presenter.viewDidLoad()
         
-        XCTAssertEqual(mockView.displayedTasks?.count, 2)
-        XCTAssertEqual(mockView.displayedNotCompletedTasksCount, 1)
+        XCTAssertEqual(mockView.displayedTasks?.count, mockTasks.count, "Метод должен был передать во вью все задачи")
+        XCTAssertEqual(mockView.displayedNotCompletedTasksCount, 1, "Должна быть только одна незавершенная задача")
     }
     
     
@@ -50,7 +50,7 @@ class TaskListPresenterTests: XCTestCase {
         
         presenter.viewDidLoad()
         
-        XCTAssertEqual(mockView.displayedError as NSError?, expectedError)
+        XCTAssertEqual(mockView.displayedError as NSError?, expectedError, "Ошибка загрузки презентера не передана на view")
     }
     
     // MARK: - Проверяем, что презентер фильтрует задачи на основе строки поиска
@@ -62,8 +62,8 @@ class TaskListPresenterTests: XCTestCase {
         let expectation = self.expectation(description: "Task Search successfully")
         
         presenter.searchTasks(with: "Buy", completion: {
-            XCTAssertEqual(self.mockView.displayedTasks?.count, 1)
-            XCTAssertEqual(self.mockView.displayedTasks?.first?.description, "Get some milk")
+            XCTAssertEqual(self.mockView.displayedTasks?.count, 1, "Должно быть одно совпадение поиска")
+            XCTAssertEqual(self.mockView.displayedTasks?.first?.description, "Get some milk", "Рузальтат совпадения должен содержать соответсвующее описание")
             expectation.fulfill()
         })
         
@@ -76,8 +76,8 @@ class TaskListPresenterTests: XCTestCase {
 
         presenter.updateTask(task)
         
-        XCTAssertTrue(self.mockInteractor.saveTaskCalled)
-        XCTAssertEqual(self.mockView.displayedTasks?.first?.title, task.title)
+        XCTAssertTrue(self.mockInteractor.saveTaskCalled, "Метод обновления задачи должен был быть вызван")
+        XCTAssertEqual(self.mockView.displayedTasks?.first?.title, task.title, "Обновленная задача должна иметь указаный текст")
     }
     
     // MARK: - Проверяем удаление задачи
@@ -85,9 +85,9 @@ class TaskListPresenterTests: XCTestCase {
         let taskId = 1
         
         presenter.deleteTask(taskId: taskId) { success in
-            XCTAssertTrue(success)
-            XCTAssertTrue(self.mockInteractor.deleteTaskCalled)
-            XCTAssertTrue(self.mockView.displayedTasks?.isEmpty ?? false)
+            XCTAssertTrue(success, "Удаление должно завершиться успешно")
+            XCTAssertTrue(self.mockInteractor.deleteTaskCalled, "Метод удаления должен был быть вызван")
+            XCTAssertTrue(self.mockView.displayedTasks?.isEmpty ?? false, "Задача должна быть удалена")
         }
         
     }
@@ -98,8 +98,8 @@ class TaskListPresenterTests: XCTestCase {
         
         presenter.didFilterTasks([task1])
         
-        XCTAssertEqual(mockView.displayedTasks?.count, 0)
-        XCTAssertNotEqual(mockView.displayedTasks?.first?.title, "Go running")
+        XCTAssertEqual(mockView.displayedTasks?.count, 0, "Метод не должен передавать данные, если поиск не производится")
+        XCTAssertNotEqual(mockView.displayedTasks?.first?.title, "Go running", "Title не должен совпадать, так как задача не должна попасть в результаты")
     }
     
     // MARK: - Проверяем что метод передает ошибку
@@ -109,6 +109,6 @@ class TaskListPresenterTests: XCTestCase {
         
         presenter.displayError(error)
         
-        XCTAssertNotNil(mockView.displayedError)
+        XCTAssertNotNil(mockView.displayedError, "Должна содержаться ошибка исключения")
     }
 }
