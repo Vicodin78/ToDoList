@@ -27,17 +27,17 @@ enum NetworkError: Error {
     
     var localizedDescription: String {
         switch self {
-        case .noInternetConnection:
+        case .noInternetConnection: //OK
             return "Отсутствует подключение к интернету"
-        case .serverUnavailable:
+        case .serverUnavailable: //OK
             return "Сервер недоступен. Попробуйте позже."
-        case .timeout:
+        case .timeout: //OK
             return "Превышено время ожидания ответа от сервера"
-        case .invalidResponse:
+        case .invalidResponse: //OK
             return "Некорректный ответ от сервера"
         case .invalidURL:
             return "Некорректный адрес сервера"
-        case .decodingFailed:
+        case .decodingFailed: //Ok
             return "Ошибка обработки данных"
         case .isRequestInProgress:
             return "Запрос уже выполняется"
@@ -52,10 +52,12 @@ protocol NetworkServiceProtocol {
 }
 
 final class NetworkService: NetworkServiceProtocol {
-    private var isRequestInProgress = false
     
-    private let session = URLSession.shared
+    var session = URLSession.shared
+    var coreDataService: CoreDataServiceProtocol = CoreDataService.shared
+    
     private let urlString = "https://dummyjson.com/todos"
+    private var isRequestInProgress = false
     
     func fetchTasks(completion: @escaping (Result<Void, Error>) -> Void) {
         guard !isRequestInProgress else {
@@ -105,7 +107,7 @@ final class NetworkService: NetworkServiceProtocol {
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
                 let tasks = try decoder.decode(Tasks.self, from: data)
-                CoreDataService.shared.saveTasks(tasks.tasks) { result in
+                self?.coreDataService.saveTasks(tasks.tasks) { result in
                     switch result {
                     case .success:
                         completion(.success(()))

@@ -17,12 +17,12 @@ protocol CoreDataServiceProtocol {
 
 class CoreDataService: CoreDataServiceProtocol {
     static let shared = CoreDataService()
-    private let persistentContainer: NSPersistentContainer
+    private var persistentContainer: NSPersistentContainer
     private let firstLaunchManager = FirstLaunchManager()
 
-    private init() {
-        persistentContainer = NSPersistentContainer(name: "TaskModel")
-        persistentContainer.loadPersistentStores { _, error in
+    init(persistentContainer: NSPersistentContainer = NSPersistentContainer(name: "TaskModel")) {
+        self.persistentContainer = persistentContainer
+        self.persistentContainer.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Ошибка загрузки CoreData: \(error)")
             }
@@ -37,7 +37,6 @@ class CoreDataService: CoreDataServiceProtocol {
             let fetchRequest: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "id == %@", argumentArray: [Int64(task.id)])
             
-
             do {
                 let results = try self.context.fetch(fetchRequest)
                 let taskEntity: TaskEntity
