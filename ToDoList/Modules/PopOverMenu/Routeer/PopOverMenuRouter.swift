@@ -16,11 +16,17 @@ protocol PopOverMenuRouterInput {
 
 class PopOverMenuRouter: PopOverMenuRouterInput {
     
+    let completion: ((_ task: Task) -> Void)
+    
+    init(completion forPushToEditView: @escaping (_ task: Task) -> Void) {
+        self.completion = forPushToEditView
+    }
+    
     weak var viewController: UIViewController?
     
     func routeToDelailView(with task: Task) {
-        let detailView = TaskDetailBuilder.build(task: task)
-        viewController?.present(detailView, animated: true)
+        dissmiss()
+        completion(task)
     }
     
     func routeToShareView(with task: Task) {

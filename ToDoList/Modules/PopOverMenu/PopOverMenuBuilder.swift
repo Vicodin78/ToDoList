@@ -8,11 +8,11 @@
 import UIKit
 
 class PopOverMenuBuilder {
-    static func build(_ task: Task) -> PopOverMenuTableViewController {
+    static func build(_ task: Task, completion forPushToEditView: @escaping (_ task: Task) -> Void) -> PopOverMenuTableViewController {
         let viewController = PopOverMenuTableViewController()
         let interactor = PopOverMenuInteractor()
         let presenter = PopOverMenuPresenter(view: viewController, interactor: interactor, task: task)
-        let router = PopOverMenuRouter()
+        let router = PopOverMenuRouter(completion: forPushToEditView)
         let coreDataService = CoreDataService.shared
         
         presenter.router = router

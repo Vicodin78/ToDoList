@@ -35,7 +35,9 @@ final class TaskListRouter: TaskListRouterInput {
     }
     
     func navigateToPopOverCell(with task: Task, at cellPosition: CGPoint) {
-        let popOverCell = PopOverCellBuilder.build(cellPosition: cellPosition, task: task)
+        let popOverCell = PopOverCellBuilder.build(cellPosition: cellPosition, task: task, completion: { task in
+            self.navigateToTaskDetail(task: task)
+        })
         
         popOverCell.modalPresentationStyle = .custom
         popOverCell.transitioningDelegate = customTransitioningDelegate

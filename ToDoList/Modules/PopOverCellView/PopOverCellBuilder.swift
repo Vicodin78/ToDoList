@@ -9,8 +9,8 @@ import UIKit
 
 class PopOverCellBuilder {
     
-    static func build(cellPosition: CGPoint, task: Task) -> UIViewController {
-        let viewController = PopOverCellViewController()
+    static func build(cellPosition: CGPoint, task: Task, completion forPushToEditView: @escaping (_ task: Task) -> Void) -> UIViewController {
+        let viewController = PopOverCellViewController(completion: forPushToEditView)
         let presenter = PopOverCellPresenter(
             view: viewController,
             cellPosition: cellPosition,
