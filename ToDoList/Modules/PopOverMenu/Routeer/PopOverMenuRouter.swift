@@ -13,10 +13,9 @@ protocol PopOverMenuRouterInput {
     func dissmiss()
 }
 
-
 class PopOverMenuRouter: PopOverMenuRouterInput {
     
-    let completion: ((_ task: Task) -> Void)
+    private let completion: ((_ task: Task) -> Void)
     
     init(completion forPushToEditView: @escaping (_ task: Task) -> Void) {
         self.completion = forPushToEditView
