@@ -9,7 +9,7 @@ import Foundation
 
 protocol TaskListPresenterInput {
     func viewDidLoad()
-    func searchTasks(with query: String)
+    func searchTasks(with query: String, completion: (() -> Void)?)
     func updateTask(_ task: Task)
     func deleteTask(taskId: Int, completion: @escaping (Bool) -> Void)
     func didTapAddTaskScreen()
@@ -54,9 +54,9 @@ final class TaskListPresenter: TaskListPresenterInput {
         }
     }
     
-    func searchTasks(with query: String) {
+    func searchTasks(with query: String, completion: (() -> Void)?) {
         isSearching = !query.isEmpty
-        interactor.filterTasks(with: query)
+        interactor.filterTasks(with: query, completion: completion)
     }
 
     func updateTask(_ task: Task) {
@@ -74,8 +74,8 @@ final class TaskListPresenter: TaskListPresenterInput {
         interactor.deleteTask(withId: taskId) { [weak self] result in
             switch result {
             case .success():
-                completion(true)
                 self?.viewDidLoad()
+                completion(true)
             case .failure(let error):
                 self?.view?.displayError(error)
             }

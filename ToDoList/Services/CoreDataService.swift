@@ -8,13 +8,21 @@
 import CoreData
 import UIKit
 
-final class CoreDataService {
-    static let shared = CoreDataService()
-    private let persistentContainer: NSPersistentContainer
+protocol CoreDataServiceProtocol {
+    func saveTask(_ task: Task, completion: @escaping (Result<Void, Error>) -> Void)
+    func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void)
+    func deleteTask(_ taskID: Int, completion: @escaping (Result<Void, Error>) -> Void)
+    func saveTasks(_ tasks: [RemoteTask], completion: @escaping (Result<Void, Error>) -> Void)
+}
 
-    private init() {
-        persistentContainer = NSPersistentContainer(name: "TaskModel")
-        persistentContainer.loadPersistentStores { _, error in
+class CoreDataService: CoreDataServiceProtocol {
+    static let shared = CoreDataService()
+    private var persistentContainer: NSPersistentContainer
+    private let firstLaunchManager = FirstLaunchManager()
+
+    init(persistentContainer: NSPersistentContainer = NSPersistentContainer(name: "TaskModel")) {
+        self.persistentContainer = persistentContainer
+        self.persistentContainer.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Ошибка загрузки CoreData: \(error)")
             }
@@ -29,7 +37,6 @@ final class CoreDataService {
             let fetchRequest: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "id == %@", argumentArray: [Int64(task.id)])
             
-
             do {
                 let results = try self.context.fetch(fetchRequest)
                 let taskEntity: TaskEntity
@@ -133,7 +140,7 @@ final class CoreDataService {
                 
                 try self.context.save()
                 DispatchQueue.main.async {
-                    FirstLaunchManager.firstLaunchCompleted()
+                    self.firstLaunchManager.firstLaunchCompleted()
                     completion(.success(()))
                 }
             } catch {

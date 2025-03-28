@@ -26,11 +26,6 @@ class PopOverMenuTableViewController: UITableViewController, PopOverMenuPresente
         view.backgroundColor = .clear
     }
     
-//    override func viewDidDisappear(_ animated: Bool) {
-//        super.viewDidDisappear(animated)
-//        delegate?.dismiss()
-//    }
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         delegate?.dismiss()

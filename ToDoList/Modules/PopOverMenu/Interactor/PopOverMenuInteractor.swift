@@ -19,6 +19,7 @@ protocol PopOverMenuInteractorOutput: AnyObject {
 class PopOverMenuInteractor: PopOverMenuInteractorInput {
     
     weak var presenter: PopOverMenuInteractorOutput?
+    var coreDataService: CoreDataServiceProtocol!
     
     private let menuItems: [MenuItem] = [
         .init(title: "Редактировать", icon: "edit", action: .edit),
@@ -31,7 +32,7 @@ class PopOverMenuInteractor: PopOverMenuInteractorInput {
     }
     
     func deleteTask(withId taskId: Int) {
-        CoreDataService.shared.deleteTask(taskId) { result in
+        coreDataService.deleteTask(taskId) { result in
             switch result {
             case .success(_):
                 self.presenter?.dissmissPopOver()

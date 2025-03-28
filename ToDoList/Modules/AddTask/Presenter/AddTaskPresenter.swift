@@ -37,7 +37,7 @@ final class AddTaskPresenter: AddTaskPresenterInput {
             let error: Error = NSError(
                 domain: "AddTaskPresenter",
                 code: 1001,
-                userInfo: [NSLocalizedDescriptionKey : "Ошибка сохранения задачи"])
+                userInfo: [NSLocalizedDescriptionKey : "Задача пуста. Выйти без сохранения?"])
             view?.displayError(error, {
                 self.dismissAddTaskView()
             })
@@ -59,13 +59,6 @@ final class AddTaskPresenter: AddTaskPresenterInput {
         let date = Date()
         let defaultName = "Задача от \(DateFormatter.formatDateToString(date))"
         guard let title = data.title, let description = data.description, !title.isEmpty || !description.isEmpty else {
-            let error: Error = NSError(
-                domain: "AddTaskPresenter",
-                code: 1001,
-                userInfo: [NSLocalizedDescriptionKey : "Задача пуста. Выйти без сохранения?"])
-            view?.displayError(error, {
-                self.dismissAddTaskView()
-            })
             return nil
         }
         let task = Task(

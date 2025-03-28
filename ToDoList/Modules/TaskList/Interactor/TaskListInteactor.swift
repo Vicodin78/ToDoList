@@ -11,7 +11,7 @@ protocol TaskListInteractorInput {
     func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void)
     func saveTask(task: Task, completion: @escaping (Result<Void, Error>) -> Void)
     func deleteTask(withId taskId: Int, completion: @escaping (Result<Void, Error>) -> Void)
-    func filterTasks(with query: String)
+    func filterTasks(with query: String, completion: (() -> Void)?)
 }
 
 protocol TaskListInteractorOutput: AnyObject {
@@ -23,10 +23,12 @@ class TaskListInteractor: TaskListInteractorInput {
     
     weak var presenter: TaskListInteractorOutput?
     var networkService: NetworkServiceProtocol?
+    var coreDataService: CoreDataServiceProtocol?
+    var firstLaunchManager: FirstLaunchManagerProtocol = FirstLaunchManager()
     
-    func filterTasks(with query: String) {
-        self.fetchTasks { result in
-            DispatchQueue.global(qos: .userInitiated).async {
+    func filterTasks(with query: String, completion: (() -> Void)? = nil) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.fetchTasks { result in
                 switch result {
                 case .success(let tasks):
                     let filtered = tasks.filter { task in
@@ -36,40 +38,39 @@ class TaskListInteractor: TaskListInteractorInput {
                         
                         return titleMatch || descriptionMatch || createdAtMatch
                     }
-                    
                     DispatchQueue.main.async {
                         self.presenter?.didFilterTasks(filtered)
+                        completion?()
                     }
                 case .failure(let failure):
                     DispatchQueue.main.async {
                         self.presenter?.displayError(failure)
                     }
-                    
                 }
             }
         }
     }
     
     func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void) {
-        if FirstLaunchManager.isFirstLaunch() {
+        if self.firstLaunchManager.isFirstLaunch() {
             networkService?.fetchTasks(completion: { result in
                 switch result {
                 case .success():
-                    CoreDataService.shared.fetchTasks { completion($0) }
+                    self.coreDataService?.fetchTasks { completion($0) }
                 case .failure(let error):
                     self.presenter?.displayError(error)
                 }
             })
         } else {
-            CoreDataService.shared.fetchTasks { completion($0) }
+            self.coreDataService?.fetchTasks { completion($0) }
         }
     }
     
     func saveTask(task: Task, completion: @escaping (Result<Void, Error>) -> Void) {
-        CoreDataService.shared.saveTask(task, completion: completion)
+        coreDataService?.saveTask(task, completion: completion)
     }
     
     func deleteTask(withId taskId: Int, completion: @escaping (Result<Void, Error>) -> Void) {
-        CoreDataService.shared.deleteTask(taskId, completion: completion)
+        coreDataService?.deleteTask(taskId, completion: completion)
     }
 }

@@ -209,7 +209,7 @@ extension TaskListViewController: UITableViewDelegate {
 
 extension TaskListViewController: SearchViewDelegate {
     func didUpdateSearchQuery(_ query: String) {
-        presenter.searchTasks(with: query)
+        presenter.searchTasks(with: query, completion: nil)
     }
     
     func updateUI() {

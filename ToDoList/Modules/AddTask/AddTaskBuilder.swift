@@ -14,9 +14,11 @@ final class AddTaskBuilder {
         let interactor = AddTaskInteractor()
         let presenter = AddTaskPresenter(view: viewController, interactor: interactor)
         let router = AddTaskRouter()
+        let coreDataService = CoreDataService.shared
         
-        presenter.router = router
         viewController.presenter = presenter
+        interactor.coreDataService = coreDataService
+        presenter.router = router
         router.viewController = viewController
         
         return viewController

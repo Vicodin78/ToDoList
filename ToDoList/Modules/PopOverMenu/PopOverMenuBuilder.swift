@@ -13,9 +13,11 @@ class PopOverMenuBuilder {
         let interactor = PopOverMenuInteractor()
         let presenter = PopOverMenuPresenter(view: viewController, interactor: interactor, task: task)
         let router = PopOverMenuRouter()
+        let coreDataService = CoreDataService.shared
         
         presenter.router = router
         interactor.presenter = presenter
+        interactor.coreDataService = coreDataService
         viewController.presenter = presenter
         router.viewController = viewController
         
