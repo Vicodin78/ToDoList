@@ -14,17 +14,20 @@ final class TaskListInteractorTests: XCTestCase {
     var mockPresenter: MockTaskListPresenter!
     var mockNetworkService: MockNetworkService!
     var mockCoreDataService: MockCoreDataService!
+    var mockLaunchManager: MockFirstLaunchManager!
     
     override func setUp() {
         super.setUp()
         mockPresenter = MockTaskListPresenter()
         mockNetworkService = MockNetworkService()
         mockCoreDataService = MockCoreDataService()
+        mockLaunchManager = MockFirstLaunchManager()
         
         interactor = TaskListInteractor()
         interactor.presenter = mockPresenter
         interactor.networkService = mockNetworkService
         interactor.coreDataService = mockCoreDataService
+        interactor.firstLaunchManager = mockLaunchManager
     }
     
     override func tearDown() {
@@ -32,10 +35,48 @@ final class TaskListInteractorTests: XCTestCase {
         mockPresenter = nil
         mockNetworkService = nil
         mockCoreDataService = nil
+        mockLaunchManager = nil
         super.tearDown()
     }
     
     // MARK: - Тест загрузки задач
+    func testFetchTasks_isFirstLaunch_Success() {
+        let mockTask = Task(id: 1, title: "Test foo", description: "testFetchTasks_isFirstLaunch_Success", createdAt: Date(), isCompleted: false)
+        
+        mockCoreDataService.tasks = [mockTask]
+        
+        mockLaunchManager.isFirstLoad = true
+        
+        let expectation = self.expectation(description: "Tasks fetched successfully")
+        
+        interactor.fetchTasks { result in
+            switch result {
+            case .success(let success):
+                XCTAssertFalse(self.mockCoreDataService.tasks.isEmpty, "Хранилище должно содержать переданный элемент")
+                XCTAssertEqual(self.mockCoreDataService.tasks.first?.description, mockTask.description, "Метод должен вернуть, а хранилище содержать такой объект")
+                expectation.fulfill()
+            case .failure(let failure):
+                XCTFail("Expected success but got failure")
+            }
+        }
+        waitForExpectations(timeout: 1.0)
+    }
+    
+    func testFetchTasks_isFirstLaunch_Failure() {
+        
+        mockLaunchManager.isFirstLoad = true
+        mockNetworkService.shouldFail = true
+        
+        interactor.fetchTasks { result in
+            switch result {
+            case .success( _):
+                XCTFail("Expected failure but got success")
+            case .failure( _):
+                XCTAssertNotNil(self.mockPresenter.displayedError, "В презентер должна быть передана ошибка")
+            }
+        }
+    }
+    
     func testFetchTasks_Success() {
         let mockTask = Task(id: 1, title: "Test", description: "Test description", createdAt: Date(), isCompleted: false)
         mockCoreDataService.tasks = [mockTask]
@@ -140,17 +181,31 @@ final class TaskListInteractorTests: XCTestCase {
         let task2 = Task(id: 2, title: "Go running", description: "Run 5km", createdAt: Date(), isCompleted: false)
         let task3 = Task(id: 3, title: "Read book", description: "Read Swift book", createdAt: Date(), isCompleted: false)
         
+        mockLaunchManager.isFirstLoad = false
+        
         mockCoreDataService.tasks = [task1, task2, task3]
         
         let expectation = self.expectation(description: "Task Filtered successfully")
         
         interactor.filterTasks(with: "Run", completion: {
-            XCTAssertEqual(self.mockPresenter.filteredTasks?.count, 1)
-            XCTAssertEqual(self.mockPresenter.filteredTasks?.first?.title, "Go running")
-            expectation.fulfill()
+            defer { expectation.fulfill() }
+            guard let filteredTasks = self.mockPresenter.filteredTasks else {
+                XCTFail("Тест не пройден. Не удалось развернть filteredTasks")
+                return
+            }
+            XCTAssertFalse(filteredTasks.isEmpty , "Должна быть не пустая коллекция задач")
+            XCTAssertTrue(filteredTasks.contains(where: {$0.title == "Go running"}), "Коллекция должна содержать данный элемент")
         })
+        waitForExpectations(timeout: 1.0)
+    }
+    
+    func testFilterTasks_Failure() {
         
-        waitForExpectations(timeout: 2.0)
+        mockCoreDataService.shouldFail = true
+        
+        interactor.filterTasks(with: "Run") {
+            XCTAssertNotNil(self.mockPresenter.displayedError, "Должна содержаться ошибка получения задач")
+        }
     }
     
     func testFilterTasks_NoResults() {

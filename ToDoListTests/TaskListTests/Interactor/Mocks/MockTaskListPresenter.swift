@@ -13,7 +13,6 @@ final class MockTaskListPresenter: TaskListInteractorOutput {
     var displayedError: Error?
     
     func didFilterTasks(_ tasks: [Task]) {
-        print("получил в презентер \(String(describing: tasks.first))")
         filteredTasks = tasks
     }
     

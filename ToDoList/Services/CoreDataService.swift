@@ -18,6 +18,7 @@ protocol CoreDataServiceProtocol {
 class CoreDataService: CoreDataServiceProtocol {
     static let shared = CoreDataService()
     private let persistentContainer: NSPersistentContainer
+    private let firstLaunchManager = FirstLaunchManager()
 
     private init() {
         persistentContainer = NSPersistentContainer(name: "TaskModel")
@@ -140,7 +141,7 @@ class CoreDataService: CoreDataServiceProtocol {
                 
                 try self.context.save()
                 DispatchQueue.main.async {
-                    FirstLaunchManager.firstLaunchCompleted()
+                    self.firstLaunchManager.firstLaunchCompleted()
                     completion(.success(()))
                 }
             } catch {

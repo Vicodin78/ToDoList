@@ -7,14 +7,19 @@
 
 import Foundation
 
-final class FirstLaunchManager {
-    static private let isFirstLaunchKey = "isFirstLaunch"
+protocol FirstLaunchManagerProtocol {
+    func isFirstLaunch() -> Bool
+    func firstLaunchCompleted()
+}
 
-    static func isFirstLaunch() -> Bool {
+final class FirstLaunchManager: FirstLaunchManagerProtocol {
+    private let isFirstLaunchKey = "isFirstLaunch"
+
+    func isFirstLaunch() -> Bool {
         !UserDefaults.standard.bool(forKey: isFirstLaunchKey)
     }
     
-    static func firstLaunchCompleted() {
+    func firstLaunchCompleted() {
         UserDefaults.standard.set(true, forKey: isFirstLaunchKey)
     }
 }

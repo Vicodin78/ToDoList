@@ -24,6 +24,7 @@ class TaskListInteractor: TaskListInteractorInput {
     weak var presenter: TaskListInteractorOutput?
     var networkService: NetworkServiceProtocol?
     var coreDataService: CoreDataServiceProtocol?
+    var firstLaunchManager: FirstLaunchManagerProtocol = FirstLaunchManager()
     
     func filterTasks(with query: String, completion: (() -> Void)? = nil) {
         self.fetchTasks { result in
@@ -52,7 +53,7 @@ class TaskListInteractor: TaskListInteractorInput {
     }
     
     func fetchTasks(completion: @escaping (Result<[Task], Error>) -> Void) {
-        if FirstLaunchManager.isFirstLaunch() {
+        if self.firstLaunchManager.isFirstLaunch() {
             networkService?.fetchTasks(completion: { result in
                 switch result {
                 case .success():
