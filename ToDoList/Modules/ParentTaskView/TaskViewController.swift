@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDelegate {
+class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate {
     
     private let notifCenter = NotificationCenter.default
     
@@ -57,6 +57,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         $0.tintColor = .appYellow
         $0.textColor = .whiteF4
         $0.isScrollEnabled = true
+        $0.contentInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         return $0
     }(UITextView())
     
@@ -80,6 +81,7 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         taskBodyTextView.delegate = self
         addCustomBackAction()
         addDoneAction()
+        addEdgeSwipeGesture()
     }
     
     override func viewDidLayoutSubviews() {
@@ -157,8 +159,8 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
             conteinerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: conteinerViewSpace),
             conteinerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            taskBodyTextView.leadingAnchor.constraint(equalTo: conteinerView.leadingAnchor),
-            taskBodyTextView.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor),
+            taskBodyTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            taskBodyTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             taskBodyTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
@@ -192,10 +194,22 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
-    //MARK: - CustomBackAction
+    //MARK: - CustomBackActionAndBackSwipe
     private func addCustomBackAction() {
         navigationItem.backAction = UIAction { [weak self] _ in
             self?.saveTask()
+        }
+    }
+    
+    private func addEdgeSwipeGesture() {
+        let edgeSwipeGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleEdgeSwipe))
+        edgeSwipeGesture.edges = .left
+        view.addGestureRecognizer(edgeSwipeGesture)
+    }
+    
+    @objc private func handleEdgeSwipe(_ gesture: UIScreenEdgePanGestureRecognizer) {
+        if gesture.state == .recognized {
+            saveTask()
         }
     }
 
