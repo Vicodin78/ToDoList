@@ -58,7 +58,7 @@ class TaskListInteractor: TaskListInteractorInput {
                 case .success():
                     self.coreDataService?.fetchTasks { completion($0) }
                 case .failure(let error):
-                    if (error as! NetworkError).localizedDescription == NetworkError.isRequestInProgress.localizedDescription {
+                    if (error as? NetworkError)?.localizedDescription == NetworkError.isRequestInProgress.localizedDescription {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
                             self.fetchTasks(completion: completion)
                         })
