@@ -58,6 +58,8 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         $0.textColor = .whiteF4
         $0.isScrollEnabled = true
         $0.contentInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        $0.textContainerInset = .zero
+        $0.textContainer.lineFragmentPadding = 0
         return $0
     }(UITextView())
     
@@ -82,6 +84,8 @@ class TaskViewController<P>: UIViewController, UITextFieldDelegate, UITextViewDe
         addCustomBackAction()
         addDoneAction()
         addEdgeSwipeGesture()
+        
+        navigationController?.navigationBar.isHidden = false
     }
     
     override func viewDidLayoutSubviews() {

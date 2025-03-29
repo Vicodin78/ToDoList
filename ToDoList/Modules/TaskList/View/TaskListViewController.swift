@@ -67,6 +67,8 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         presenter.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
+        
         notifCenter.addObserver(self, selector: #selector(keyboardShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         notifCenter.addObserver(self, selector: #selector(keyboardHide), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
@@ -103,7 +105,7 @@ final class TaskListViewController: UIViewController, TaskListPresenterOutput {
         
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leftRightSpace),
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -leftRightSpace),
             
             searchView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
